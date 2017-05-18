@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+// testing formatDate function from the main package
 func TestFormatDate(t *testing.T) {
 
 	tests := []struct {
@@ -16,6 +17,7 @@ func TestFormatDate(t *testing.T) {
 		{"Jan 10, 2015", "1420848000", "January 10, 2015"},
 		{"10 Feb, 2010", "1265760000", "February 10, 2010"},
 		{"February 10, 2011", "1297296000", "February 10, 2011"},
+		{"1999 feb 10", "918604800", "February 10, 1999"},
 		{"December 30, 2018", "1546128000", "December 30, 2018"},
 		{"2015 January 10", "1420848000", "January 10, 2015"},
 		{"10 2015 January", "1420848000", "January 10, 2015"},

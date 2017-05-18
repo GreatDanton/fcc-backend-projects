@@ -41,7 +41,6 @@ func formatDate(input string) jsonOutput {
 	data := jsonOutput{Unix: "", Natural: ""}
 	// check for unix format
 	if len(input) > 0 {
-
 		in := strings.Replace(input, ",", "", -1)
 		inputArr := strings.Split(in, " ")
 
@@ -69,13 +68,14 @@ func formatDate(input string) jsonOutput {
 			m = inputArr[mPlace]
 			restArr := inputArr
 			// removing element from slice
-			restArr = append(restArr[:mPlace], restArr[mPlace+1:]...) // lol wut?
+			restArr = append(restArr[:mPlace], restArr[mPlace+1:]...) // ... means add each element of the slice
 			yPlace := maxLen(restArr)
+
 			switch yPlace {
-			case 0:
+			case 0: // [yyyy, dd]
 				y = restArr[0]
 				d = restArr[1]
-			case 1:
+			case 1: // [dd, yyyy]
 				y = restArr[1]
 				d = restArr[0]
 			}
@@ -83,23 +83,24 @@ func formatDate(input string) jsonOutput {
 		} else {
 			// month name does not exist
 			yPlace := maxLen(inputArr)
+
 			switch yPlace {
-			case 0: // yyyy mm dd
+			case 0: // [yyyy, mm, dd]
 				y = inputArr[0]
 				m = inputArr[1]
 				d = inputArr[2]
-			case 1: // mm yyyy dd
+			case 1: // [mm, yyyy, dd]
 				y = inputArr[1]
 				m = inputArr[0]
 				d = inputArr[2]
-			case 2: // mm dd yyyy
+			case 2: // [mm, dd, yyyy]
 				y = inputArr[2]
 				m = inputArr[0]
 				d = inputArr[1]
 			}
 		}
 
-// transforming data to integers
+		// transforming data to integers
 		year, err := strconv.Atoi(y)
 		if err != nil {
 			fmt.Println("Problem with converting year:", err)
@@ -107,12 +108,11 @@ func formatDate(input string) jsonOutput {
 		}
 
 		month := 0
-		// month
 		// if month (m) starts with letter, get the integer
 		if isLetter(m) {
 			mArr := []string{"---", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 			for i, v := range mArr {
-				if strings.Contains(v, m) {
+				if strings.Contains(strings.ToLower(v), strings.ToLower(m)) {
 					month = i
 					break
 				}
@@ -153,7 +153,8 @@ func maxLen(arr []string) int {
 }
 
 // check if string contains letters
-// usage: isLetter("Something") => true
+// usage:
+// isLetter("Something") => true
 // isLetter("123") => false
 var isLetter = regexp.MustCompile(`^[a-zA-Z]+$`).MatchString
 
