@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,35 +9,48 @@ import (
 )
 
 func main() {
-
-	http.HandleFunc("/", rootHandle)
-
+	http.HandleFunc("/", mainHandle)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("Listen and serve:", err)
 	}
 }
 
-func rootHandle(w http.ResponseWriter, r *http.Request) {
+// reply struct for marshalling output data into json
+type reply struct {
+	Language string `json:"language"`
+	Os       string `json:"software"`
+	IP       string `json:"ipaddress"`
+}
+
+// mainHandle function
+func mainHandle(w http.ResponseWriter, r *http.Request) {
 	// parse language and user-agent
 	header := r.Header
+	h := fmt.Sprintf("%v", header)
 	addr := r.RemoteAddr
 
 	// get os
-	h := fmt.Sprintf("%v", header)
 	os := parseOs(h)
-	fmt.Println(os)
-
 	// get language
 	l := parseLang(h)
-	fmt.Println(l)
-
 	// get ip
 	ip := parseIP(addr)
-	fmt.Println(ip)
 
-	fmt.Fprintf(w, "%s\n", header)
-	fmt.Fprintf(w, "%v\n", addr)
+	reply := reply{Language: l, Os: os, IP: ip}
+
+	out, err := json.MarshalIndent(reply, "", "    ")
+	if err != nil {
+		fmt.Println("Cannot produce json", err)
+		return
+	}
+
+	// output json
+	fmt.Fprintf(w, "%s\n", out)
 }
+
+//
+// HELPER FUNCTIONS
+//
 
 // parse ip from remote address
 func parseIP(addr string) string {
