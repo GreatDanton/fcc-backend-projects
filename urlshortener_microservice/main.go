@@ -44,18 +44,14 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 	url := u[1:]
 	site, ok := db[url]
-	fmt.Println("URL: ", url)
-	fmt.Println("SITE: ", site)
-	fmt.Println("OK:", ok)
 	if !ok {
 		fmt.Fprintf(w, "%s\n", "Link does not exist")
 		displayDB(w)
 		return
 	}
-	fmt.Println("Should redirect now to:", site)
 	// if redirection is not working on local host it might
 	// be because of the browser cache -> test it in private mode
-	http.Redirect(w, r, site, http.StatusMovedPermanently)
+	http.Redirect(w, r, site, http.StatusSeeOther)
 }
 
 // struct for json output on new link creation
