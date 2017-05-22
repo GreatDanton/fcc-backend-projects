@@ -1,0 +1,29 @@
+<html>
+
+<head>
+    <title> Url shortener in golang </title>
+</head>
+<style>
+    body,
+    html {
+        font-family: "Arial", sans-serif;
+    }
+</style>
+
+<body>
+    <h1> URL shortener microservice </h1>
+    <br>
+    <h2> Creating links </h2>
+    <code>
+        http://{{.HOST}}/new/https://www.google.com
+    </code>
+
+    <h2> Usage: </h2>
+    <code>
+        http://{{.HOST}}/12345
+    </code>
+
+    <p> Will redirect to www.google.com </p>
+</body>
+
+</html>
