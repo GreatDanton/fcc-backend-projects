@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/greatdanton/fcc-backend-projects/imageSearch_api/parse"
 )
 
 func main() {
@@ -35,35 +36,10 @@ func search(w http.ResponseWriter, r *http.Request) {
 	q := server.Query()
 	q.Set("q", search)
 	server.RawQuery = q.Encode()
-	fmt.Println(server)
-
 	url := fmt.Sprintf("%v", server)
-	str, _ := createImageAPI(url)
+	str, err := parse.CreateImageAPI(url)
+	if err != nil {
+		log.Fatal("Cannot create image api", err)
+	}
 	fmt.Fprintf(w, "%s\n", str)
-	/*	fmt.Println(str)*/
-}
-
-// struct for outputting json
-type output struct {
-	URL       string `json:"url"`
-	Snippet   string `json:"snippet"`
-	Thumbnail string `json:"thumbnail"`
-	Context   string `json:"context"`
-}
-
-// parses html
-func createImageAPI(url string) (string, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	text, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		e := fmt.Errorf("Could not parse response html: %v", err)
-		return "", e
-	}
-
-	return string(text), nil
 }
