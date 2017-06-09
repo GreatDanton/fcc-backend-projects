@@ -1,13 +1,14 @@
 package parse
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-// ImageAPI for displaying image json api
+// ImageAPI used for displaying image json api in browser
 type ImageAPI struct {
 	URL       string `json:"url"`
 	Snippet   string `json:"snippet"`
@@ -16,58 +17,104 @@ type ImageAPI struct {
 }
 
 // CreateImageAPI from provided url string
-func CreateImageAPI(url string) (string, error) {
+func CreateImageAPI(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		e := fmt.Errorf("Could not parse response html: %v", err)
-		return "", e
+		return nil, e
 	}
 	html := string(body)
 	// get url, snippet, thumbnail, context
-	meta, _ := getMetadata(html)
-	fmt.Println(meta)
+	meta, err := getMetadata(html)
+	if err != nil {
+		return nil, err
+	}
 
-	return html, nil
+	/*	fmt.Println("### Printing meta tag")
+		fmt.Println(meta)*/
+	return meta, nil
 }
 
 func parseHTML(html string) (string, error) {
 	return html, nil
 }
 
+// TODO: remove this part
 // used for parsing json from string on google images
-type parseMetadata struct {
+/*type parseMetadata struct {
 	Description string `json:"pt"`
 	Image       string `json:"ou"`
 	Site        string `json:"ru"`
-}
+}*/
 
-func getMetadata(html string) (string, error) {
-	divStart := strings.Index(html, `<td style="width:25%`)
-	divEnd := strings.Index(html[divStart+1:], `</td>`) + divStart
-	fmt.Println(divStart)
+// parses relevant metadata from html string
+// returns: json api
+func getMetadata(html string) ([]byte, error) {
 
-	if divStart == -1 {
-		err := fmt.Errorf("No more meta divs")
-		return "", err
+	api := []ImageAPI{}
+
+	imageContainers := parseImageContainers(html, []string{})
+
+	for _, container := range imageContainers {
+		image := imageURL(container)
+		context := imageContext(container)
+		img := ImageAPI{Context: context, Thumbnail: image}
+		api = append(api, img)
 	}
 
-	image := html[divStart : divEnd+1]
+	jsonString, err := json.MarshalIndent(api, "", "    ")
+	if err != nil {
+		fmt.Println("getMetadata: Cannot marshal image api")
+		return nil, err
+	}
 
-	// json string we will unmarshal
-	/*	j := []byte(html[divStart:divEnd])
+	return jsonString, nil
+}
 
-		api := parseMetadata{}
-		err := json.Unmarshal(j, api)
-		if err != nil {
-			return parseMetadata{}, fmt.Errorf("getMetadata: error parsing json %v", err)
-		}
+// recursive function for parsing image parent containers from raw
+// html string
+func parseImageContainers(html string, containers []string) []string {
+	divStart := strings.Index(html, `<td style="width:25%`)
+	divEnd := strings.Index(html[divStart+1:], `</td>`) + divStart
 
-		return api, nil*/
-	return image, nil
+	if divStart == -1 {
+		return containers
+	}
+
+	imgContainer := html[divStart : divEnd+1]
+	containers = append(containers, imgContainer)
+
+	return parseImageContainers(html[divEnd:], containers)
+}
+
+// get image url from provided html string
+func imageURL(html string) string {
+	imgStart := strings.Index(html, `<img`)
+	h := html[imgStart:]
+
+	start := strings.Index(h, `src`)
+	h = h[start+len(`src="`):]
+	end := strings.Index(h, `"`)
+
+	return h[:end]
+}
+
+// get image context from provided html string
+func imageContext(html string) string {
+	cStart := strings.Index(html, `</cite>`)
+	h := html[cStart+len(`</cite><br>`):]
+	end := strings.Index(h, `<br>`)
+
+	context := h[:end]
+	// crude way to replace <b> </b> tags from context string
+	context = strings.Replace(context, `<b>`, "", -1)
+	context = strings.Replace(context, `</b>`, "", -1)
+
+	return context
 }

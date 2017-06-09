@@ -37,9 +37,10 @@ func search(w http.ResponseWriter, r *http.Request) {
 	q.Set("q", search)
 	server.RawQuery = q.Encode()
 	url := fmt.Sprintf("%v", server)
-	str, err := parse.CreateImageAPI(url)
+
+	json, err := parse.CreateImageAPI(url)
 	if err != nil {
 		log.Fatal("Cannot create image api", err)
 	}
-	fmt.Fprintf(w, "%s\n", str)
+	fmt.Fprintf(w, "%s\n", json)
 }
