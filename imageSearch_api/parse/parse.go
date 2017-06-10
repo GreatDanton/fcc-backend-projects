@@ -62,8 +62,8 @@ func getMetadata(html string) ([]byte, error) {
 	imageContainers := parseImageContainers(html, []string{})
 
 	for _, container := range imageContainers {
-		image := imageURL(container)
-		context := imageContext(container)
+		image := parseImageURL(container)
+		context := parseImageContext(container)
 		img := ImageAPI{Context: context, Thumbnail: image}
 		api = append(api, img)
 	}
@@ -81,7 +81,7 @@ func getMetadata(html string) ([]byte, error) {
 // html string
 func parseImageContainers(html string, containers []string) []string {
 	divStart := strings.Index(html, `<td style="width:25%`)
-	divEnd := strings.Index(html[divStart+1:], `</td>`) + divStart
+	divEnd := strings.Index(html[divStart+1:], `</td>`) + divStart + len(`</td>`)
 
 	if divStart == -1 {
 		return containers
@@ -94,7 +94,7 @@ func parseImageContainers(html string, containers []string) []string {
 }
 
 // get image url from provided html string
-func imageURL(html string) string {
+func parseImageURL(html string) string {
 	imgStart := strings.Index(html, `<img`)
 	h := html[imgStart:]
 
@@ -106,7 +106,7 @@ func imageURL(html string) string {
 }
 
 // get image context from provided html string
-func imageContext(html string) string {
+func parseImageContext(html string) string {
 	cStart := strings.Index(html, `</cite>`)
 	h := html[cStart+len(`</cite><br>`):]
 	end := strings.Index(h, `<br>`)

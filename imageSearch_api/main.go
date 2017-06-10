@@ -21,7 +21,6 @@ func main() {
 }
 
 func search(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s\n", "Search part")
 	serverURL := "https://www.google.com/search?tbm=isch"
 	// remove /api/imagesearch/ from query
 	search := strings.Split(r.URL.Path, "/")[3:][0]
