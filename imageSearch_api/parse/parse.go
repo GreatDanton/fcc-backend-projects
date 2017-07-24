@@ -11,13 +11,15 @@ import (
 // ImageAPI used for displaying image json api in browser
 type ImageAPI struct {
 	URL       string `json:"url"`
-	Snippet   string `json:"snippet"`
 	Thumbnail string `json:"thumbnail"`
 	Context   string `json:"context"`
+	// Snippet   string `json:"snippet"`
 }
 
 // CreateImageAPI from provided url string
 func CreateImageAPI(url string) ([]byte, error) {
+	fmt.Println(url)
+
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -36,22 +38,8 @@ func CreateImageAPI(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	/*	fmt.Println("### Printing meta tag")
-		fmt.Println(meta)*/
 	return meta, nil
 }
-
-func parseHTML(html string) (string, error) {
-	return html, nil
-}
-
-// TODO: remove this part
-// used for parsing json from string on google images
-/*type parseMetadata struct {
-	Description string `json:"pt"`
-	Image       string `json:"ou"`
-	Site        string `json:"ru"`
-}*/
 
 // parses relevant metadata from html string
 // returns: json api
@@ -62,9 +50,10 @@ func getMetadata(html string) ([]byte, error) {
 	imageContainers := parseImageContainers(html, []string{})
 
 	for _, container := range imageContainers {
-		image := parseImageURL(container)
+		image := parseThumbnailURL(container)
 		context := parseImageContext(container)
-		img := ImageAPI{Context: context, Thumbnail: image}
+		url := parseSiteURL(container)
+		img := ImageAPI{Context: context, Thumbnail: image, URL: url}
 		api = append(api, img)
 	}
 
@@ -88,13 +77,24 @@ func parseImageContainers(html string, containers []string) []string {
 	}
 
 	imgContainer := html[divStart : divEnd+1]
+	/* 	fmt.Println("")
+	   	fmt.Println(imgContainer) */
 	containers = append(containers, imgContainer)
-
 	return parseImageContainers(html[divEnd:], containers)
 }
 
+// returns website on which the image is found - url part of json api
+func parseSiteURL(html string) string {
+	imgStart := strings.Index(html, `<a href`)
+	html = html[imgStart:]
+	s := strings.Index(html, "http")
+	end := strings.Index(html[s:], `&amp`) + s
+	url := html[s:end]
+	return url
+}
+
 // get image url from provided html string
-func parseImageURL(html string) string {
+func parseThumbnailURL(html string) string {
 	imgStart := strings.Index(html, `<img`)
 	h := html[imgStart:]
 
