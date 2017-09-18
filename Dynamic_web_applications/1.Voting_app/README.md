@@ -37,9 +37,9 @@
 ## User
 
     (id serial primary key,
-    username text unique,
+    username varchar(50) unique,
     email text unique,
-    password_hash _)
+    password_hash varchar(72) NOT NULL);
 
 ## Vote
 
