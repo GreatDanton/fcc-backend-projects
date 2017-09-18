@@ -15,3 +15,22 @@
 * User Story: As an unauthenticated or authenticated user, I can see the results of polls in chart form. (This could be implemented using Chart.js or Google Charts.)
 
 * User Story: As an authenticated user, if I don't like the options on a poll, I can create a new option.
+
+
+
+
+# Database design
+
+## Pool
+
+    (id serial primary key,
+    owner integer,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    title text);
+
+## PoolOption
+
+    (id serial,
+    pool_id integer references Pool(id),
+    option text);
+

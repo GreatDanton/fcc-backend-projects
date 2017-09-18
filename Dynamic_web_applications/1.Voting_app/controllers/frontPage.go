@@ -10,9 +10,10 @@ import (
 )
 
 type question struct {
-	ID       string
-	Time     string
-	Question string
+	ID     string
+	UserID string
+	Time   string
+	Title  string
 }
 
 // FrontPage takes care of displaying front page of Voting Application
@@ -20,26 +21,27 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		// getting database response
-		rows, err := global.DB.Query("SELECT * from QUESTIONS")
+		rows, err := global.DB.Query("SELECT * from Pool")
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer rows.Close()
 
 		var (
-			id    string
-			time  string
-			quest string
+			id     string
+			userID string
+			time   string
+			title  string
 		)
 
 		Questions := []question{}
 
 		for rows.Next() {
-			err := rows.Scan(&id, &time, &quest)
+			err := rows.Scan(&id, &userID, &time, &title)
 			if err != nil {
 				log.Fatal(err)
 			}
-			Questions = append(Questions, question{ID: id, Time: time, Question: quest})
+			Questions = append(Questions, question{ID: id, UserID: userID, Time: time, Title: title})
 		}
 		err = rows.Err()
 		if err != nil {
