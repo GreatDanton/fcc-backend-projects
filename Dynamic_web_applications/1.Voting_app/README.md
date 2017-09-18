@@ -24,13 +24,26 @@
 ## Pool
 
     (id serial primary key,
-    owner integer,
+    createdy_by integer references User(id),
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     title text);
 
 ## PoolOption
 
-    (id serial,
+    (id serial primary key,
     pool_id integer references Pool(id),
     option text);
 
+## User
+
+    (id serial primary key,
+    username text unique,
+    email text unique,
+    password_hash _)
+
+## Vote
+
+    (id serial,
+    pool_id integer references pool(id),
+    option_id integer references poolOption(id),
+    voted_by integer references user(id))

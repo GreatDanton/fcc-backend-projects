@@ -3,11 +3,23 @@ $color-text: #212121;
 $color-text-alt: #f4f4f4;
 $color-internal-link: #2D2AE4;
 
+// button
+$color-btn-background: #3f51b5;
+$color-btn-background-hover: #303f9f;
+$color-btn-text: #fff;
+
+// background colors
+$color-front-background: #fafafa;
+$color-body-background: #ECECEC;
+
 // borders:
 $border-window: 1px solid #ccc;
 
 // transitions:
 $transition-default: all 0.2s ease-in-out;
+
+// shadows:
+$box-shadow-card: 2px 2px 10px rgba(0, 0, 0, 0.2);
 
 
 
@@ -21,17 +33,24 @@ a {
     color: $color-internal-link;
 }
 
+body {
+    background: $color-body-background;
+}
+
 // displaying navbar with buttons and logo
 .navbar {
     display: flex;
     width: 100%;
     height: 50px;
     line-height: 50px;
+    background: $color-front-background;
 
     .navbar-title {
         font-size: 22px;
         flex-grow: 2;
         padding-left: 20px;
+        color: $color-text;
+        text-decoration: none;
     }
 
     .navbar-btn {
@@ -48,6 +67,19 @@ a {
 }
 
 
+.main-container {
+    max-width: 100%;
+    width: 900px;
+    margin-top: 50px;
+    border: $border-window;
+    background: $color-front-background;
+    margin: 50px auto;
+    min-height: 400px;
+    padding: 40px 40px;
+    box-shadow: $box-shadow-card;
+}
+
+
 .votes-container {
     max-width: 100%;
     width: 750px;
@@ -60,3 +92,35 @@ a {
     min-height: 50px;
     line-height: 50px;
 }
+
+
+.vertical-options {
+    display: flex;
+    flex-flow: column;
+    width: 500px;
+    margin: 30px auto;
+}
+
+.vote-option {
+    margin: 5px 0;
+}
+
+.btn-vote {
+    margin: 30px 0;
+    background-color: $color-btn-background;
+    color: $color-front-background;
+    border: none;
+    height: 35px;
+    line-height: 35px;
+    transition: $transition-default;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.btn-vote:hover {
+    background-color: $color-btn-background-hover;
+    cursor: pointer;
+}
+
+/*  UTILITIES */
+@import "_utilities";

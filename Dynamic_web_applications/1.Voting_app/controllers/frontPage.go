@@ -49,7 +49,7 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// displaying template
-		t := template.Must(template.ParseFiles("templates/index.html"))
+		t := template.Must(template.ParseFiles("templates/index.html", "templates/navbar.html"))
 		err = t.Execute(w, Questions)
 		if err != nil {
 			fmt.Println(err)

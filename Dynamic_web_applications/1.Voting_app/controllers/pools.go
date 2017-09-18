@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strings"
 
@@ -46,15 +47,34 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 		pool.Title = title
 		pool.Option = append(pool.Option, poolOption)
 	}
+	defer rows.Close()
+
 	err = rows.Err()
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 
-	if len(pool.Title) > 0 {
-		fmt.Fprintf(w, fmt.Sprintf("%v", pool))
+	// check if pool title exists, if it doesn't => display the 404 page
+	if len(pool.Title) > 0 && len(pool.Option) > 0 {
+		t := template.Must(template.ParseFiles("templates/voteDetails.html",
+			"templates/navbar.html", "templates/styles.html"))
+		err = t.Execute(w, pool)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	} else {
-		fmt.Fprintf(w, "This pool does not exist")
+		t := template.Must(template.ParseFiles("templates/404.html",
+			"templates/navbar.html",
+			"templates/styles.html"))
+		err := t.Execute(w, "")
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
