@@ -137,3 +137,18 @@ func getPoolVotes(poolID string) ([][]string, error) {
 
 	return votes, nil
 }
+
+// CreateNewPool takes care of handling creation of the new pool
+func CreateNewPool(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		t := template.Must(template.ParseFiles("templates/newPool.html", "templates/navbar.html", "templates/styles.html"))
+		err := t.Execute(w, nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	} else if r.Method == "POST" {
+		fmt.Println("posted stuff")
+	}
+}

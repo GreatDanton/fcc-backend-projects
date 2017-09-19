@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+
+<head>
+    <title> New pool </title>
+    {{template "styles"}}
+</head>
+
+<body>
+    {{template "navbar"}}
+    <div class="main-container">
+        <h1 class="card-title">Create new pool</h1>
+
+        <form method="post">
+            <label>Insert your question:</label><br/>
+            <textarea placeholder="Insert your question"></textarea>
+
+            <label>Possible Answers:</label>
+            <div id="vote-answers">
+                <input type="text" placeholder="Option 1" />
+                <input type="text" placeholder="Option 2" />
+                <input type="text" placeholder="Option 3" />
+            </div>
+            <button id="vote-add-answer" type="button">Add Answer</button>
+
+            <br/>
+            <br/>
+
+            <button type="submit"> Submit Question </button>
+        </form>
+    </div>
+</body>
+
+<script src="/public/js/main.js"></script>
+
+</html>
