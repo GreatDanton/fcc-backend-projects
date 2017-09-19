@@ -51,8 +51,8 @@ func main() {
 	// handle public files
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
-	connection := fmt.Sprintf("user=%v password=%v dbname=%v sslmode=disable",
-		config.DbUser, config.DbPassword, config.DbName)
+	// open connection with database using the fields from config
+	connection := fmt.Sprintf("user=%v password=%v dbname=%v sslmode=disable", config.DbUser, config.DbPassword, config.DbName)
 	db, err := sql.Open("postgres", connection)
 	if err != nil {
 		log.Fatal(err)

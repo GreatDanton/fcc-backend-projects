@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<head>
+    <title> Register </title>
+    {{template "styles"}}
+</head>
+
+<body>
+    {{template "navbar"}}
+    <div class="signup">
+
+        <form method="POST">
+            <label for="register-name">Username: </label><br/>
+            <input id="register-name" type="text" />
+            <br/>
+            <label for="password">Password:</label><br/>
+            <input id="password" type="text" />
+            <br/>
+            <label for="password-confirm">Confirm password: </label><br/>
+            <input id="password-confirm" type="text" />
+            <br/>
+
+            <button type="submit"> Register </button>
+        </form>
+    </div>
+</body>
+
+</html>

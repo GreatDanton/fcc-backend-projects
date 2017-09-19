@@ -46,4 +46,4 @@
     (id serial,
     pool_id integer references pool(id),
     option_id integer references poolOption(id),
-    voted_by integer references user(id))
+    voted_by integer references user(id));

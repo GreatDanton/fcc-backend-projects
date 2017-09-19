@@ -32,6 +32,7 @@
                 <th>Vote Option</th>
                 <th>Number of votes </th>
             </tr>
+            <!-- display | Vote option | number of votes | in table -->
             {{range $index, $votes := .Votes}}
             <tr>
                 <td>{{index $votes 0}}</td>

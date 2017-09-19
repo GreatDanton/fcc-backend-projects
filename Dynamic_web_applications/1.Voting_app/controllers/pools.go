@@ -14,7 +14,7 @@ type Pool struct {
 	Author  string
 	Title   string
 	Options []string
-	Votes   [][]string
+	Votes   [][]string // contains [vote Option, vote count]
 }
 
 // ViewPool takes care for displaying existing pools
@@ -35,13 +35,7 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	// create array of arrays for displaying [option, vote count]
-	// in templates
-	for i := range votes.VoteOptions {
-		vote := []string{votes.VoteOptions[i], votes.Count[i]}
-		pool.Votes = append(pool.Votes, vote)
-	}
+	pool.Votes = votes
 
 	// check if pool title exists, if it doesn't => display the 404 page
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
@@ -53,7 +47,7 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-	} else {
+	} else { // if db does not return any rows -> pool does not exist, display 404
 		t := template.Must(template.ParseFiles("templates/404.html",
 			"templates/navbar.html",
 			"templates/styles.html"))
@@ -66,7 +60,7 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// get pool details: title and possible vote options
+// getPoolDetails returns Title, Author, Vote options from database for chosen poolID
 func getPoolDetails(poolID string) (Pool, error) {
 	pool := Pool{}
 	rows, err := global.DB.Query(`SELECT title, users.username, option from pool
@@ -106,17 +100,11 @@ func getPoolDetails(poolID string) (Pool, error) {
 	return pool, nil
 }
 
-// Votes struct for displaying vote Options | number of votes
-type Votes struct {
-	VoteOptions []string
-	Count       []string
-}
-
 // get vote count for pool with chosen poolID
-// returns Votes struct that can be displayed in template
-func getPoolVotes(poolID string) (Votes, error) {
+// returns [[Vote option 1, count 1], [Vote option 2, count 2]]
+func getPoolVotes(poolID string) ([][]string, error) {
+	votes := [][]string{} //Votes{}
 	// returns: optionName, number of votes (sorted descending)
-	votes := Votes{}
 	rows, err := global.DB.Query(`SELECT poolOption.option, count(vote.option_id) from pooloption
 								  LEFT JOIN vote
 								  on pooloption.id = vote.option_id
@@ -139,8 +127,8 @@ func getPoolVotes(poolID string) (Votes, error) {
 			return votes, err
 		}
 		// appending results of table rows to Votes
-		votes.VoteOptions = append(votes.VoteOptions, voteOption)
-		votes.Count = append(votes.Count, count)
+		vote := []string{voteOption, count}
+		votes = append(votes, vote)
 	}
 	err = rows.Err()
 	if err != nil {
