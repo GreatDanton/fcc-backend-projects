@@ -13,7 +13,6 @@ import (
 
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/controllers"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/model"
 )
 
 // Config struct for holding data from config.json file
@@ -62,7 +61,7 @@ func main() {
 	global.DB = db // assign to global variable
 
 	// setUp our database -> remove old tables and setup new ones
-	model.SetUpDB()
+	//model.SetUpDB()
 
 	if err := http.ListenAndServe(":"+config.Port, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)

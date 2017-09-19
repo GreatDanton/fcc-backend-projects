@@ -12,9 +12,10 @@
     <div class="main-container">
 
         <h1>{{.Title}} </h1>
+        <p> Created by {{.Author}} </p>
 
         <form class="vertical-options">
-            {{range $i, $e := .Option}}
+            {{range $i, $e := .Options}}
             <div class="row vote-option">
                 <input id="{{$i}}" type="radio" value="{{$e}}" name="voteOption">
                 <label for="{{$i}}">{{$e}}</label>
@@ -25,6 +26,19 @@
 
 
         <h2> Results </h2>
+
+        <table>
+            <tr>
+                <th>Vote Option</th>
+                <th>Number of votes </th>
+            </tr>
+            {{range $index, $votes := .Votes}}
+            <tr>
+                <td>{{index $votes 0}}</td>
+                <td>{{index $votes 1}}</td>
+            </tr>
+            {{end}}
+        </table>
     </div>
 
 

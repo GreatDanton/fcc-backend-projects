@@ -141,4 +141,11 @@ func createVoteTable() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	_, err = global.DB.Exec(`insert into vote(pool_id, option_id, voted_by)
+										values(2, 3, 1)`)
+	if err != nil {
+		fmt.Println("HERE ")
+		fmt.Println(err)
+	}
 }
