@@ -1,5 +1,5 @@
 // colors:
-$color-text: #212121;
+$color-text: #313131;
 $color-text-alt: #f4f4f4;
 $color-internal-link: #2D2AE4;
 
@@ -13,7 +13,7 @@ $color-front-background: #fafafa;
 $color-body-background: #ECECEC;
 
 // borders:
-$border-window: 1px solid #ccc;
+$border-window: 1px solid #dce0e0;
 
 // transitions:
 $transition-default: all 0.2s ease-in-out;
@@ -21,6 +21,9 @@ $transition-default: all 0.2s ease-in-out;
 // shadows:
 $box-shadow-card: 2px 2px 10px rgba(0, 0, 0, 0.2);
 
+// fonts:
+$font-family-p: "Fira Sans", sans-serif;
+$font-size-p: 14px;
 
 
 * {
@@ -35,6 +38,12 @@ a {
 
 body {
     background: $color-body-background;
+    color: $color-text;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: $color-text;
+    font-family: $font-family-p;
 }
 
 // displaying navbar with buttons and logo
@@ -62,6 +71,7 @@ body {
         text-decoration: none;
         color: $color-text;
         transition: $transition-default;
+        font-size: $font-size-p;
     }
 
     .navbar-btn:hover {
@@ -108,21 +118,64 @@ body {
     margin: 5px 0;
 }
 
-.btn-vote {
-    margin: 30px 0;
+.btn-submit {
+    margin-top: 30px;
     background-color: $color-btn-background;
     color: $color-front-background;
     border: none;
-    height: 35px;
-    line-height: 35px;
+    height: 40px;
+    line-height: 40px;
     transition: $transition-default;
     border-radius: 3px;
-    font-size: 14px;
+    font-size: $font-size-p;
+    width: 100%;
+    cursor: pointer;
+    transition: $transition-default;
 }
 
-.btn-vote:hover {
+.btn-submit:hover {
     background-color: $color-btn-background-hover;
     cursor: pointer;
+}
+
+.card-signup {
+    background: $color-front-background;
+    border: $border-window;
+    box-shadow: $box-shadow-card;
+    width: 500px;
+    max-width: 100%;
+    padding: 40px 40px;
+    margin: 40px auto;
+}
+
+.card-title {
+    display: block;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.vertical-fields {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    width: 220px;
+}
+
+.vertical-fields input {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+input[type="text"] {
+    font-family: $font-family-p;
+    font-size: $font-size-p;
+    color: $color-text;
+}
+
+label {
+    font-family: $font-family-p;
+    font-size: $font-size-p;
+    color: $color-text;
 }
 
 /*  UTILITIES */

@@ -7,20 +7,22 @@
 
 <body>
     {{template "navbar"}}
-    <div class="signup">
 
+    <div class="card-signup">
+        <h1 class="card-title">Register</h1>
         <form method="POST">
-            <label for="register-name">Username: </label><br/>
-            <input id="register-name" type="text" />
-            <br/>
-            <label for="password">Password:</label><br/>
-            <input id="password" type="text" />
-            <br/>
-            <label for="password-confirm">Confirm password: </label><br/>
-            <input id="password-confirm" type="text" />
-            <br/>
-
-            <button type="submit"> Register </button>
+            <div class="vertical-fields">
+                <label for="register-name">Username: </label><br/>
+                <input id="register-name" type="text" />
+                <br/>
+                <label for="password">Password:</label><br/>
+                <input id="password" type="password" />
+                <br/>
+                <label for="password-confirm">Confirm password: </label><br/>
+                <input id="password-confirm" type="password" />
+                <br/>
+            </div>
+            <button class="btn-submit" type="submit"> Register </button>
         </form>
     </div>
 </body>
