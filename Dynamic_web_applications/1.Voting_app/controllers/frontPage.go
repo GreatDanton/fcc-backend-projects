@@ -21,7 +21,7 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		// getting database response
-		rows, err := global.DB.Query("SELECT * from Pool")
+		rows, err := global.DB.Query("SELECT * from Pool order by id desc limit 20")
 		if err != nil {
 			log.Fatal(err)
 		}

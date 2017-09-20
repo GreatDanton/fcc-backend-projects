@@ -13,3 +13,10 @@
 .margin-b-20 {
     margin-bottom: 20px;
 }
+
+
+// for label to display error message
+.error-message {
+    color: $color-text-error;
+    font-size: $font-size-p;
+}

@@ -48,7 +48,7 @@ func main() {
 	http.HandleFunc("/register", controllers.Register)
 	http.HandleFunc("/login", controllers.Login)
 	http.HandleFunc("/view/", controllers.ViewPool)
-	http.HandleFunc("/new", controllers.CreateNewPool)
+	http.HandleFunc("/new/", controllers.CreateNewPool)
 	// handle public files
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 

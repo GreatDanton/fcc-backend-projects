@@ -13,17 +13,19 @@
         <div class="vertical-fields new-post">
             <form method="post">
                 <div class="new-post-question">
-                    <label>Insert your question:</label><br/>
-                    <textarea placeholder="Insert your question" name="poolTitle"></textarea>
+                    <label>Pool title:</label><br/>
+                    <textarea placeholder="Insert pool title" name="poolTitle">{{.Title}}</textarea>
+                    <label class="error-message">{{.TitleError}}</label>
                 </div>
 
-                <label class="margin-b-10">Possible Options:</label>
-                <div id="vote-answers">
+                <label class="margin-b-10">Vote Options:</label>
+                <div id="vote-options">
                     <input type="text" placeholder="Option 1" name="option-1" />
                     <input type="text" placeholder="Option 2" name="option-2" />
                     <input type="text" placeholder="Option 3" name="option-3" />
                 </div>
-                <button id="vote-add-answer" type="button">Add Answer</button>
+                <label class="error-message">{{.VoteOptionsError}}</label>
+                <button id="vote-add-option" class="btn-basic" type="button">Add Option</button>
 
                 <br/>
                 <br/>
@@ -34,6 +36,6 @@
     </div>
 </body>
 
-<script src="/public/js/main.js"></script>
+<script src="/public/js/newPool.js"></script>
 
 </html>

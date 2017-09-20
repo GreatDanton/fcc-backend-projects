@@ -2,6 +2,7 @@
 $color-text: #313131;
 $color-text-alt: #f4f4f4;
 $color-internal-link: #2D2AE4;
+$color-text-error: #CF1F1F;
 
 // button
 $color-btn-background: #3f51b5;
@@ -122,27 +123,6 @@ h1, h2, h3, h4, h5, h6 {
     margin: 5px 0;
 }
 
-.btn-submit {
-    margin-top: 30px;
-    background-color: $color-btn-background;
-    color: $color-front-background;
-    border: none;
-    height: 40px;
-    line-height: 40px;
-    transition: $transition-default;
-    border-radius: 3px;
-    font-family: $font-family-p;
-    font-size: $font-size-p;
-    width: 100%;
-    cursor: pointer;
-    transition: $transition-default;
-}
-
-.btn-submit:hover {
-    background-color: $color-btn-background-hover;
-    cursor: pointer;
-}
-
 .card-signup {
     background: $color-front-background;
     border: $border-window;
@@ -211,5 +191,8 @@ label {
     color: $color-text;
 }
 
+
 /*  UTILITIES */
 @import "_utilities";
+
+@import "_buttons";

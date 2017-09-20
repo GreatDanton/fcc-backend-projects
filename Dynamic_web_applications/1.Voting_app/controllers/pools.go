@@ -19,7 +19,7 @@ type Pool struct {
 	Votes   [][]string // contains [vote Option, vote count]
 }
 
-// ViewPool takes care for displaying existing pools
+// ViewPool takes care for displaying existing pools in /view/pool_id
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	poolID := r.URL.Path
 	poolID = strings.Split(poolID, "/")[2]
@@ -140,11 +140,18 @@ func getPoolVotes(poolID string) ([][]string, error) {
 	return votes, nil
 }
 
-// CreateNewPool takes care of handling creation of the new pool
-func CreateNewPool(w http.ResponseWriter, r *http.Request) {
+//newPoolError struct is used to display error messages in
+// new pool template
+type newPoolError struct {
+	Title            string
+	TitleError       string
+	VoteOptionsError string
+}
 
+// CreateNewPool takes care of handling creation of the new pool in url: /new
+func CreateNewPool(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("templates/newPool.html", "templates/navbar.html", "templates/styles.html"))
 	if r.Method == "GET" {
-		t := template.Must(template.ParseFiles("templates/newPool.html", "templates/navbar.html", "templates/styles.html"))
 		err := t.Execute(w, nil)
 		if err != nil {
 			fmt.Println(err)
@@ -159,16 +166,39 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		}
 
 		poolTitle := r.Form["poolTitle"][0]
-		order := make([]string, 0, len(r.Form))
+		poolTitle = strings.TrimSpace(poolTitle)
+		// check if poolTitle exists else return template with error message
+		if len(poolTitle) < 1 {
+			e := newPoolError{TitleError: "Please add title to your pool"}
+			err := t.Execute(w, e)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+			return
+		}
 
+		order := make([]string, 0, len(r.Form))
 		// r.Form returns a map, we have to add fields in db in correct order
+		// so we don't confuse the end user, why their options are borked
 		// => that is in the same order the user wanted to post options
 		for key, option := range r.Form {
-			voteOption := strings.TrimSpace(option[0])
+			voteOption := strings.TrimSpace(option[0])     // trim empty space from pool option
 			if key != "poolTitle" && len(voteOption) > 0 { // filter out empty fields and title
 				order = append(order, key)
 			}
 		}
+		// if there are not at least 2 options to vote for return error into template
+		if len(order) < 2 {
+			e := newPoolError{Title: poolTitle, VoteOptionsError: "Please add at least two options"}
+			err := t.Execute(w, e)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(w, "Internal Server error", http.StatusInternalServerError)
+			}
+			return
+		}
+
 		// sorting strings in ascending order
 		sort.Strings(order)
 		voteOptions := make([]string, 0, len(order))
