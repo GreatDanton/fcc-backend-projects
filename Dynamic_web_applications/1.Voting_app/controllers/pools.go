@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
@@ -149,6 +151,92 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if r.Method == "POST" {
-		fmt.Println("posted stuff")
+		err := r.ParseForm()
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		poolTitle := r.Form["poolTitle"][0]
+		order := make([]string, 0, len(r.Form))
+
+		// r.Form returns a map, we have to add fields in db in correct order
+		// => that is in the same order the user wanted to post options
+		for key, option := range r.Form {
+			voteOption := strings.TrimSpace(option[0])
+			if key != "poolTitle" && len(voteOption) > 0 { // filter out empty fields and title
+				order = append(order, key)
+			}
+		}
+		// sorting strings in ascending order
+		sort.Strings(order)
+		voteOptions := make([]string, 0, len(order))
+		for _, value := range order {
+			voteOptions = append(voteOptions, value)
+		}
+
+		// Adding new pool into database => begin SQL transaction
+		// all inserts must succeed
+		tx, err := global.DB.Begin()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		poolID, err := addPoolTitle(poolTitle, tx)
+		if err != nil {
+			fmt.Printf("addPoolTitle: %v", err)
+			tx.Rollback()
+			return
+		}
+
+		// insert posts into postOptions database
+		for _, value := range voteOptions {
+			option := r.Form[value][0] // text of the voteOption
+			err := addPoolOption(poolID, option, tx)
+			if err != nil {
+				fmt.Printf("addPoolOption: %v", err)
+				tx.Rollback()
+				return
+			}
+		}
+		// end of SQL transaction
+		tx.Commit() // if no errors occur, commit to database
+		// redirect to new post with status code 303
+		url := fmt.Sprintf("/view/%v", poolID)
+		http.Redirect(w, r, url, http.StatusSeeOther)
 	}
+}
+
+// add post title to database
+func addPoolTitle(title string, tx *sql.Tx) (string, error) {
+	// get user id from currently logged in user
+	userID := 1 // for now using 1
+
+	var id string
+	err := tx.QueryRow(`INSERT into pool(created_by, title)
+							 values($1, $2) RETURNING id`, userID, title).Scan(&id)
+	if err != nil {
+		return "", err
+	}
+
+	poolID := fmt.Sprintf("%v", id)
+	return poolID, nil
+}
+
+// add new post questions to database
+func addPoolOption(poolID, option string, tx *sql.Tx) error {
+	stmt, err := tx.Prepare(`INSERT into poolOption(pool_id, option)
+								values($1, $2);`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(poolID, option)
+	if err != nil {
+		return err
+	}
+	return nil
 }

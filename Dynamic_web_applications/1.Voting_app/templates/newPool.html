@@ -10,23 +10,27 @@
     <div class="main-container">
         <h1 class="card-title">Create new pool</h1>
 
-        <form method="post">
-            <label>Insert your question:</label><br/>
-            <textarea placeholder="Insert your question"></textarea>
+        <div class="vertical-fields new-post">
+            <form method="post">
+                <div class="new-post-question">
+                    <label>Insert your question:</label><br/>
+                    <textarea placeholder="Insert your question" name="poolTitle"></textarea>
+                </div>
 
-            <label>Possible Answers:</label>
-            <div id="vote-answers">
-                <input type="text" placeholder="Option 1" />
-                <input type="text" placeholder="Option 2" />
-                <input type="text" placeholder="Option 3" />
-            </div>
-            <button id="vote-add-answer" type="button">Add Answer</button>
+                <label class="margin-b-10">Possible Options:</label>
+                <div id="vote-answers">
+                    <input type="text" placeholder="Option 1" name="option-1" />
+                    <input type="text" placeholder="Option 2" name="option-2" />
+                    <input type="text" placeholder="Option 3" name="option-3" />
+                </div>
+                <button id="vote-add-answer" type="button">Add Answer</button>
 
-            <br/>
-            <br/>
+                <br/>
+                <br/>
 
-            <button type="submit"> Submit Question </button>
-        </form>
+                <button class="btn-submit" type="submit"> Submit Question </button>
+            </form>
+        </div>
     </div>
 </body>
 
