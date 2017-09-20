@@ -45,9 +45,9 @@ func main() {
 	fmt.Printf("Starting server: http://127.0.0.1:%v\n", config.Port)
 
 	http.HandleFunc("/", controllers.FrontPage)
-	http.HandleFunc("/register", controllers.Register)
-	http.HandleFunc("/login", controllers.Login)
-	http.HandleFunc("/view/", controllers.ViewPool)
+	http.HandleFunc("/register/", controllers.Register)
+	http.HandleFunc("/login/", controllers.Login)
+	http.HandleFunc("/pool/", controllers.ViewPool)
 	http.HandleFunc("/new/", controllers.CreateNewPool)
 	// handle public files
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))

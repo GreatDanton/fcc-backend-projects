@@ -25,24 +25,24 @@
         </form>
 
 
-        <h2> Results </h2>
+        <div class="pool-results">
+            <h2> Results </h2>
+            <div class="chart-container margin-t-40">
+                <canvas id="resultsChart"></canvas>
+            </div>
 
-        <table>
-            <tr>
-                <th>Vote Option</th>
-                <th>Number of votes </th>
-            </tr>
-            <!-- display | Vote option | number of votes | in table -->
-            {{range $index, $votes := .Votes}}
-            <tr>
-                <td>{{index $votes 0}}</td>
-                <td>{{index $votes 1}}</td>
-            </tr>
-            {{end}}
-        </table>
+            <div id="chart-data">
+                {{ range $index, $votes := .Votes}}
+                <input type="hidden" value="{{index $votes 0}}" />
+                <input type="hidden" value="{{index $votes 1}}" /> {{end}}
+            </div>
+        </div>
     </div>
 
 
 </body>
+<!-- adding chart js cdn link -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js"></script>
+<script src="/public/js/drawChart.js"></script>
 
 </html>

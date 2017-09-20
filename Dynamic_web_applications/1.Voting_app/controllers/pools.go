@@ -19,7 +19,7 @@ type Pool struct {
 	Votes   [][]string // contains [vote Option, vote count]
 }
 
-// ViewPool takes care for displaying existing pools in /view/pool_id
+// ViewPool takes care for displaying existing pools in /pool/pool_id
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	poolID := r.URL.Path
 	poolID = strings.Split(poolID, "/")[2]
@@ -234,7 +234,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		// end of SQL transaction
 		tx.Commit() // if no errors occur, commit to database
 		// redirect to new post with status code 303
-		url := fmt.Sprintf("/view/%v", poolID)
+		url := fmt.Sprintf("/pool/%v", poolID)
 		http.Redirect(w, r, url, http.StatusSeeOther)
 	}
 }

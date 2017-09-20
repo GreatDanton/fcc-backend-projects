@@ -116,6 +116,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-flow: column;
     width: 500px;
+    max-width: 100%;
     margin: 30px auto;
 }
 
@@ -191,8 +192,18 @@ label {
     color: $color-text;
 }
 
+.pool-results {
+    margin-top: 80px;
+}
 
 /*  UTILITIES */
 @import "_utilities";
 
 @import "_buttons";
+
+
+@media screen and (max-width: 500px) {
+    .main-container {
+        padding: 40px 15px;
+    }
+}
