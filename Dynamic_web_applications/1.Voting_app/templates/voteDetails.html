@@ -14,7 +14,7 @@
         <h1>{{.Title}} </h1>
         <p> Created by {{.Author}} </p>
 
-        <form class="vertical-options">
+        <form class="vertical-options" method="POST">
             {{range $i, $e := .Options}}
             <div class="row vote-option">
                 <input id="{{$i}}" type="radio" value="{{$e}}" name="voteOption">

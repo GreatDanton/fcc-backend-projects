@@ -19,8 +19,24 @@ type Pool struct {
 	Votes   [][]string // contains [vote Option, vote count]
 }
 
-// ViewPool takes care for displaying existing pools in /pool/pool_id
+// ViewPool takes care for handling existing pools in /pool/pool_id
+// displaying existing pools
+// handling voting part of the pool
 func ViewPool(w http.ResponseWriter, r *http.Request) {
+	switch m := r.Method; m {
+	case "GET":
+		viewPool(w, r)
+	case "POST":
+		postVote(w, r)
+	default:
+		viewPool(w, r)
+	}
+}
+
+// viewPool is handling GET request for VIEW POOL function
+// viewPool displays data for chosen pool /pool/:id and returns
+//404 page if pool does not exist
+func viewPool(w http.ResponseWriter, r *http.Request) {
 	poolID := r.URL.Path
 	poolID = strings.Split(poolID, "/")[2]
 
@@ -39,7 +55,8 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 	}
 	pool.Votes = votes
 
-	// check if pool title exists, if it doesn't => display the 404 page
+	// check if pool title exists and display relevant template with
+	// pool data filled in
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
 		t := template.Must(template.ParseFiles("templates/voteDetails.html",
 			"templates/navbar.html", "templates/styles.html"))
@@ -60,6 +77,12 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// postVote takes care of POST request on ViewPOOL
+// This function handles posting votes on each /pool/:id
+func postVote(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Posting vote")
 }
 
 // getPoolDetails returns Title, Author, Vote options from database for chosen poolID
@@ -102,7 +125,7 @@ func getPoolDetails(poolID string) (Pool, error) {
 	return pool, nil
 }
 
-// get vote count for pool with chosen poolID
+// getPoolVotes returns vote count for pool with chosen poolID
 // returns [[Vote option 1, count 1], [Vote option 2, count 2]]
 func getPoolVotes(poolID string) ([][]string, error) {
 	votes := [][]string{} //Votes{}
@@ -122,7 +145,6 @@ func getPoolVotes(poolID string) ([][]string, error) {
 		voteOption string
 		count      string
 	)
-
 	for rows.Next() {
 		err := rows.Scan(&voteOption, &count)
 		if err != nil {
@@ -136,7 +158,6 @@ func getPoolVotes(poolID string) ([][]string, error) {
 	if err != nil {
 		return votes, err
 	}
-
 	return votes, nil
 }
 
@@ -199,7 +220,8 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// sorting strings in ascending order
+		// this ensures pool options are inserted into database in
+		// the same order as the end-user intended
 		sort.Strings(order)
 		voteOptions := make([]string, 0, len(order))
 		for _, value := range order {

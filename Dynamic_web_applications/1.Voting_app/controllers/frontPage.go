@@ -55,8 +55,6 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 			return
 		}
-	} else if r.Method == "POST" {
-		fmt.Println("Posting stuff, handle with db")
 	}
 
 }
