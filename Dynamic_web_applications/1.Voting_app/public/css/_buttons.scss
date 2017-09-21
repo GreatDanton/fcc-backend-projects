@@ -41,3 +41,54 @@ button:hover {
     border: none;
     cursor: pointer;
 }
+
+
+// RADIO BUTTONS
+// custom radio buttons for voting part of website
+.vote-option input[type="radio"] {
+    display: none;
+}
+
+.vote-option label {
+    position: relative;
+}
+
+.vote-option span::before,
+.vote-option span::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+}
+
+.vote-option span.radio:hover {
+    cursor: pointer;
+}
+
+.vote-option span.radio::before {
+    top: 1px;
+    left: -19px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid $color-text;
+}
+
+.vote-option span.radio::after {
+    border-radius: 50%;
+    top: 5px;
+    left: -15px;
+    width: 6px;
+    height: 6px;
+    transition: $transition-default;
+    background-color: $color-front-background;
+}
+
+.vote-option:hover span.radio::after {
+    background-color: $color-radio-inactive;
+}
+
+.vote-option input[type="radio"]:checked + label span.radio::after {
+    background-color: $color-text;
+}

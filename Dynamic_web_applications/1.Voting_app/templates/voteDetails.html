@@ -18,7 +18,7 @@
             {{range $i, $e := .Options}}
             <div class="row vote-option">
                 <input id="{{$i}}" type="radio" value="{{index $e 1}}" name="voteOption">
-                <label for="{{$i}}">{{index $e 0}}</label>
+                <label for="{{$i}}"><span class="radio">{{index $e 0}}</span></label>
             </div>
             {{end}}
             <button class="btn-submit" type="submit"> Vote </button>
