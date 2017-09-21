@@ -1,6 +1,8 @@
 // js part of the /pool/:num
-// this scripts gets chart data from html hidden elements
-// and display it on chart via chartJS library.
+
+// this scripts gets number of votes for each vote  option
+//from html hidden elements and display it on chart
+//via chartJS library.
 
 var ctx = document.getElementById("resultsChart");
 var chartData = document.getElementById('chart-data');
@@ -8,7 +10,8 @@ var chartData = document.getElementById('chart-data');
 var votes = [];
 var labels = [];
 
-// getting data out of hidden html elements
+// parsing data out of hidden html elements that are filled
+// via go templates
 var data = chartData.children;
 
 for (var i = 0; i < data.length; i++) {
@@ -20,28 +23,33 @@ for (var i = 0; i < data.length; i++) {
 }
 
 
-// this function returns a number that is used as the maximum number
-// of the chart. Setting max number on chart ensures our yAxis scales
-// nicely to the nearest suitable number
+// getMaxValue(["1", "2", "4"]) returns a number that is used as the maximum number
+// to defines maximum height of the chart. Setting max number on chart ensures
+//our yAxis scales nicely to the nearest suitable number: See below
 //
+// Algorithm:
 // 53 turned 60 => nearest 2 digit number
 // 120 turned into 200 => nearest 3 digit number
 // 1200 turned into 2000 => nearest 4 digit number
+//
 function getMaxValue(valuesArr) {
+    // turn array of strings into array of integers
     arr = valuesArr.map(function (item) {
         return parseInt(item);
     })
+    // get maximum number in array
     max = Math.max.apply(null, arr)
+
     // algorithm to turn numbers into nearest suitable number
-    // see description above the function
+    // see description above this function
     var padding = ("" + max).length;
     var scale = 10 ** (padding - 1);
     var maxValue = Math.floor(max / scale) * scale + scale;
     return maxValue;
 }
 
-var maxValue = getMaxValue(votes)
 
+var maxValue = getMaxValue(votes)
 
 var myChart = new Chart(ctx, {
     type: 'bar',
@@ -97,6 +105,7 @@ var myChart = new Chart(ctx, {
     }
 });
 
+// This plugin draws numbers above chart bars, taken from stackoverflow
 Chart.plugins.register({
     afterDatasetsDraw: function (chart, easing) {
         // To only draw at the end of animation, check for easing === 1
