@@ -19,6 +19,30 @@ for (var i = 0; i < data.length; i++) {
     }
 }
 
+
+// this function returns a number that is used as the maximum number
+// of the chart. Setting max number on chart ensures our yAxis scales
+// nicely to the nearest suitable number
+//
+// 53 turned 60 => nearest 2 digit number
+// 120 turned into 200 => nearest 3 digit number
+// 1200 turned into 2000 => nearest 4 digit number
+function getMaxValue(valuesArr) {
+    arr = valuesArr.map(function (item) {
+        return parseInt(item);
+    })
+    max = Math.max.apply(null, arr)
+    // algorithm to turn numbers into nearest suitable number
+    // see description above the function
+    var padding = ("" + max).length;
+    var scale = 10 ** (padding - 1);
+    var maxValue = Math.floor(max / scale) * scale + scale;
+    return maxValue;
+}
+
+var maxValue = getMaxValue(votes)
+
+
 var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -46,6 +70,8 @@ var myChart = new Chart(ctx, {
         }]
     },
     options: {
+        responsive: true,
+        maintainAspectRatio: true,
         legend: {
             display: false,
         },
@@ -56,15 +82,45 @@ var myChart = new Chart(ctx, {
                     labelString: "Number of Votes"
                 },
                 ticks: {
+                    padding: 5,
+                    max: maxValue,
                     beginAtZero: true,
                     //removing decimal points from table
                     userCallback: function (label, index, labels) {
                         if (Math.floor(label) === label) {
                             return label;
                         }
-                    }
+                    },
                 }
             }]
-        }
+        },
+    }
+});
+
+Chart.plugins.register({
+    afterDatasetsDraw: function (chart, easing) {
+        // To only draw at the end of animation, check for easing === 1
+        var ctx = chart.ctx;
+        chart.data.datasets.forEach(function (dataset, i) {
+            var meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
+                meta.data.forEach(function (element, index) {
+                    // Draw the text in black, with the specified font
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    var fontSize = 16;
+                    var fontStyle = 'normal';
+                    var fontFamily = 'Fira Sans';
+                    ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                    // Just naively convert to string for now
+                    var dataString = dataset.data[index].toString();
+                    // Make sure alignment settings are correct
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    var padding = 0;
+                    var position = element.tooltipPosition();
+                    ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+                });
+            }
+        });
     }
 });
