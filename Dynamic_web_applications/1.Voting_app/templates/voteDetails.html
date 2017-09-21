@@ -17,11 +17,13 @@
         <form class="vertical-options" method="POST">
             {{range $i, $e := .Options}}
             <div class="row vote-option">
-                <input id="{{$i}}" type="radio" value="{{$e}}" name="voteOption">
-                <label for="{{$i}}">{{$e}}</label>
+                <input id="{{$i}}" type="radio" value="{{index $e 1}}" name="voteOption">
+                <label for="{{$i}}">{{index $e 0}}</label>
             </div>
             {{end}}
             <button class="btn-submit" type="submit"> Vote </button>
+
+            <input type="hidden" name="poolID" value="{{.ID}}" />
         </form>
 
 

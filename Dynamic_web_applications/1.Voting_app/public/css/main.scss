@@ -23,6 +23,7 @@ $border-inactive: 1px solid #c2c0c2;
 $transition-default: all 0.2s ease-in-out;
 
 // shadows:
+$box-shadow-navbar: 0px 2px 5px #D3D3D3;
 $box-shadow-card: 2px 2px 10px rgba(0, 0, 0, 0.2);
 
 // fonts:
@@ -58,6 +59,7 @@ h1, h2, h3, h4, h5, h6 {
     height: 50px;
     line-height: 50px;
     background: $color-front-background;
+    box-shadow: $box-shadow-navbar;
 
     .navbar-title {
         font-size: 22px;

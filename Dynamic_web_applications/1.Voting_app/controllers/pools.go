@@ -13,30 +13,30 @@ import (
 
 // Pool structure used to parse values from database
 type Pool struct {
+	ID      string
 	Author  string
 	Title   string
-	Options []string
+	Options [][]string // contains [[option title, option_id]]
 	Votes   [][]string // contains [vote Option, vote count]
 }
 
 // ViewPool takes care for handling existing pools in /pool/pool_id
-// displaying existing pools
-// handling voting part of the pool
+// displaying existing pools and handling voting part of the pool
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	switch m := r.Method; m {
 	case "GET":
-		viewPool(w, r)
+		displayPool(w, r)
 	case "POST":
 		postVote(w, r)
 	default:
-		viewPool(w, r)
+		displayPool(w, r)
 	}
 }
 
-// viewPool is handling GET request for VIEW POOL function
-// viewPool displays data for chosen pool /pool/:id and returns
+// displayPool is handling GET request for VIEW POOL function
+// displayPool displays data for chosen pool /pool/:id and returns
 //404 page if pool does not exist
-func viewPool(w http.ResponseWriter, r *http.Request) {
+func displayPool(w http.ResponseWriter, r *http.Request) {
 	poolID := r.URL.Path
 	poolID = strings.Split(poolID, "/")[2]
 
@@ -82,13 +82,38 @@ func viewPool(w http.ResponseWriter, r *http.Request) {
 // postVote takes care of POST request on ViewPOOL
 // This function handles posting votes on each /pool/:id
 func postVote(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Posting vote")
+	r.ParseForm()
+	var optionID string
+	poolID := r.Form["poolID"][0]
+
+	for key, value := range r.Form {
+		if key != "poolID" {
+			optionID = value[0]
+		}
+	}
+
+	// userID should be logged in user -> authentication part is still missing
+	// voting as User1 for now
+	userID := 1
+	// check if vote for user already exists
+
+	// add vote to database
+	_, err := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
+	values($1, $2, $3)`, poolID, optionID, userID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	// refresh page -> redirect to the same page
+	http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 }
 
 // getPoolDetails returns Title, Author, Vote options from database for chosen poolID
 func getPoolDetails(poolID string) (Pool, error) {
 	pool := Pool{}
-	rows, err := global.DB.Query(`SELECT title, users.username, option from pool
+	rows, err := global.DB.Query(`SELECT title, users.username, pooloption.option,
+									pooloption.id from pool
 									LEFT JOIN poolOption
 									on pool.id = poolOption.pool_id
 									LEFT JOIN users
@@ -100,19 +125,24 @@ func getPoolDetails(poolID string) (Pool, error) {
 
 	// defining variables for parsing rows from db
 	var (
-		title      string
-		author     string
-		poolOption string
+		title        string
+		author       string
+		poolOption   string
+		poolOptionID string
 	)
+	// assign ID
+	pool.ID = poolID
 	// parsing rows from database
 	for rows.Next() {
-		err := rows.Scan(&title, &author, &poolOption)
+		err := rows.Scan(&title, &author, &poolOption, &poolOptionID)
 		if err != nil {
 			return pool, err
 		}
 		pool.Title = title
 		pool.Author = author
-		pool.Options = append(pool.Options, poolOption)
+
+		option := []string{poolOption, poolOptionID}
+		pool.Options = append(pool.Options, option)
 		// add number of votes
 	}
 	defer rows.Close()
@@ -134,8 +164,7 @@ func getPoolVotes(poolID string) ([][]string, error) {
 								  LEFT JOIN vote
 								  on pooloption.id = vote.option_id
 								  where pooloption.pool_id = $1
-								  group by poolOption.option
-								  order by count desc`, poolID)
+								  group by poolOption.option`, poolID)
 	if err != nil {
 		return votes, err
 	}
