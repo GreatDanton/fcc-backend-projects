@@ -1,11 +1,15 @@
-var answersContainer = document.getElementById('vote-options');
-var addAnswer = document.getElementById('vote-add-option');
+var optionsContainer = document.getElementById('vote-options');
+var addOption = document.getElementById('vote-add-option');
 
 // add new text box on button click
-addAnswer.addEventListener('click', function () {
-    var optionNum = answersContainer.childElementCount + 1;
-    var input = "<input type='text' placeholder='Option " + optionNum + "' />";
-    answersContainer.innerHTML += input;
+addOption.addEventListener('click', function () {
+    var optionNum = optionsContainer.childElementCount + 1;
+    // create new input and append it to option container
+    var input = document.createElement('input')
+    input.type = "text";
+    input.placeholder = "Option " + optionNum;
+    input.name = "option-" + optionNum;
+    optionsContainer.appendChild(input);
 });
 
 

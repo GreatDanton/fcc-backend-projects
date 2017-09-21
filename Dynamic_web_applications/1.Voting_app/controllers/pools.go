@@ -95,21 +95,57 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	// userID should be logged in user -> authentication part is still missing
 	// voting as User1 for now
 	userID := 1
-	// check if vote for user already exists
 
-	// add vote to database
-	_, err := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
-	values($1, $2, $3)`, poolID, optionID, userID)
+	// check if vote for user already exists
+	var dbVoteID string
+	var dbOption string
+	err := global.DB.QueryRow(`SELECT id, option_id from vote
+								where voted_by = $1
+								and pool_id = $2`, userID, poolID).Scan(&dbVoteID, &dbOption)
+
 	if err != nil {
-		fmt.Println(err)
+		// if user did not vote, add users vote into database
+		if err == sql.ErrNoRows {
+			// add vote to database
+			_, err := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
+										values($1, $2, $3)`, poolID, optionID, userID)
+			if err != nil {
+				fmt.Println(err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+			// refresh page -> redirect to the same page
+			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
+		}
+
+		// if an actual error occured, display internal server error msg
+		fmt.Printf("postVote: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	// refresh page -> redirect to the same page
+
+	// error did not occur user already voted -> change his vote
+	// if his recent vote option is different than his past
+	// update database with his recent option
+	if optionID != dbOption {
+		// if user change his mind, update his vote
+		_, err = global.DB.Exec(`UPDATE vote SET
+								option_id = $1
+								where id = $2`, optionID, dbVoteID)
+		if err != nil {
+			fmt.Printf("postVote: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+	// refresh page upon successful POST request
+	//(does not matter if db was updated => we should always redirect after POST)
 	http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 }
 
-// getPoolDetails returns Title, Author, Vote options from database for chosen poolID
+//
+// getPoolDetails returns {poolID, Title, Author, [pooloption, pooloptionID]}
+// from database for chosen poolID
 func getPoolDetails(poolID string) (Pool, error) {
 	pool := Pool{}
 	rows, err := global.DB.Query(`SELECT title, users.username, pooloption.option,
