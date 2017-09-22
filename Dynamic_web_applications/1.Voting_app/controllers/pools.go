@@ -58,7 +58,7 @@ func displayPool(w http.ResponseWriter, r *http.Request) {
 	// check if pool title exists and display relevant template with
 	// pool data filled in
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
-		t := template.Must(template.ParseFiles("templates/voteDetails.html",
+		t := template.Must(template.ParseFiles("templates/poolDetails.html",
 			"templates/navbar.html", "templates/styles.html"))
 		err = t.Execute(w, pool)
 		if err != nil {

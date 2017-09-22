@@ -12,7 +12,7 @@
     <div class="main-container">
 
         <h1>{{.Title}} </h1>
-        <p> Created by {{.Author}} </p>
+        <p> Created by <a href="/u/{{.Author}}">{{.Author}}</a></p>
 
         <form class="vertical-options" method="POST">
             {{range $i, $e := .Options}}
