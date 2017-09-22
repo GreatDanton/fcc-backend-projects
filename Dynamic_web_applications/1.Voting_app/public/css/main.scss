@@ -18,6 +18,7 @@ $border-window: 1px solid #dce0e0;
 //forms
 $border-active: 1px solid #8a8a8a;
 $border-inactive: 1px solid #c2c0c2;
+$border-error: 1px solid $color-text-error;
 
 // transitions:
 $transition-default: all 0.2s ease-in-out;
@@ -25,6 +26,7 @@ $transition-default: all 0.2s ease-in-out;
 // shadows:
 $box-shadow-navbar: 0px 2px 5px #D3D3D3;
 $box-shadow-card: 2px 2px 10px rgba(0, 0, 0, 0.2);
+$box-shadow-error: 2px 2px 10px rgba(207, 31, 31, 0.3);
 
 // fonts:
 $font-family-p: "Fira Sans", sans-serif;
@@ -153,7 +155,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .vertical-fields input {
-    margin-bottom: 10px;
     width: 100%;
 }
 
@@ -195,6 +196,20 @@ label {
     font-family: $font-family-p;
     font-size: $font-size-p;
     color: $color-text;
+}
+
+// display error border around input with class .error
+input[type="text"], input[type="password"], input[type="email"], textarea {
+    &.error {
+        border: $border-error;
+    }
+}
+
+input[type="text"]:focus, input[type="password"]:focus,
+input[type="email"]:focus, textarea:focus {
+    &.error {
+        box-shadow: $box-shadow-error;
+    }
 }
 
 .pool-results {

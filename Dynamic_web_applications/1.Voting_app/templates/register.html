@@ -13,21 +13,29 @@
         <form method="POST">
             <div class="vertical-fields">
                 <label for="register-name">Username: </label><br/>
-                <input id="register-name" type="text" />
+                <input id="register-name" type="text" name="register-name" value="{{.Username}}" /><br/>
+                <label class="error-message">{{.ErrorUsername}}</label>
                 <br/>
+
                 <label for="email">Email: </label><br/>
-                <input id="email" type="email" />
+                <input id="email" type="email" name="email" value="{{.Email}}" /><br/>
+                <label class="error-message">{{.ErrorEmail}}</label>
+                <br/>
 
                 <label for="password">Password:</label><br/>
-                <input id="password" type="password" />
+                <input id="password" type="password" name="password" value="{{.Password}}" /><br/>
                 <br/>
+
                 <label for="password-confirm">Confirm password: </label><br/>
-                <input id="password-confirm" type="password" />
+                <input id="password-confirm" type="password" name="password-confirm" /><br/>
+                <label id="e-password-confirm" class="error-message">{{.ErrorPassword}}</label>
                 <br/>
             </div>
             <button class="btn-submit" type="submit"> Register </button>
         </form>
     </div>
 </body>
+
+<script src="/public/js/register.js"></script>
 
 </html>
