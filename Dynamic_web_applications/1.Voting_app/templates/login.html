@@ -13,10 +13,14 @@
         <form method="POST">
             <div class="vertical-fields">
                 <label for="username">Username: </label><br/>
-                <input id="username" type="text" name="username" /><br/>
+                <input id="username" type="text" name="username" value="{{.Username}}" /><br/>
+                <label class="error-message">{{.ErrorUsername}}</label>
+                <br/>
 
                 <label for="password">Password: </label><br/>
                 <input id="password" type="password" name="password" /><br/>
+                <label class="error-message">{{.ErrorPassword}}</label>
+                <br/>
             </div>
             <button class="btn-submit" type="submit">Log In</button>
         </form>

@@ -42,7 +42,7 @@ func registerGET(w http.ResponseWriter, r *http.Request, errMsg registerErrors) 
 	t := template.Must(template.ParseFiles("templates/register.html", "templates/navbar.html", "templates/styles.html"))
 	err := t.Execute(w, errMsg)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("registerGet: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -93,7 +93,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	// hash user inserted password
 	passwordHash, err := hashPassword(password)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("hashPassword: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
