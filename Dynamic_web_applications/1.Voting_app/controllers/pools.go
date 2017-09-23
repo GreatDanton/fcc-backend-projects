@@ -49,7 +49,7 @@ func displayPool(w http.ResponseWriter, r *http.Request) {
 
 	votes, err := getPoolVotes(poolID)
 	if err != nil {
-		fmt.Printf("Error while getting pool votes count: %v", err)
+		fmt.Printf("Error while getting pool votes count: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -100,15 +100,15 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	var dbVoteID string
 	var dbOption string
 	err := global.DB.QueryRow(`SELECT id, option_id from vote
-								where voted_by = $1
-								and pool_id = $2`, userID, poolID).Scan(&dbVoteID, &dbOption)
+							   WHERE voted_by = $1
+							   AND pool_id = $2`, userID, poolID).Scan(&dbVoteID, &dbOption)
 
 	if err != nil {
 		// if user did not vote, add users vote into database
 		if err == sql.ErrNoRows {
 			// add vote to database
 			_, err := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
-										values($1, $2, $3)`, poolID, optionID, userID)
+									  values($1, $2, $3)`, poolID, optionID, userID)
 			if err != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -119,7 +119,7 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// if an actual error occured, display internal server error msg
-		fmt.Printf("postVote: %v", err)
+		fmt.Printf("postVote: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -130,10 +130,10 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	if optionID != dbOption {
 		// if user change his mind, update his vote
 		_, err = global.DB.Exec(`UPDATE vote SET
-								option_id = $1
-								where id = $2`, optionID, dbVoteID)
+								 option_id = $1
+								 where id = $2`, optionID, dbVoteID)
 		if err != nil {
-			fmt.Printf("postVote: %v", err)
+			fmt.Printf("postVote: %v\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -149,15 +149,16 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 func getPoolDetails(poolID string) (Pool, error) {
 	pool := Pool{}
 	rows, err := global.DB.Query(`SELECT title, users.username, pooloption.option,
-									pooloption.id from pool
-									LEFT JOIN poolOption
-									on pool.id = poolOption.pool_id
-									LEFT JOIN users
-									on users.id = pool.created_by
-									where pool.id = $1;`, poolID)
+								  pooloption.id from pool
+								  LEFT JOIN poolOption
+								  on pool.id = poolOption.pool_id
+								  LEFT JOIN users
+								  on users.id = pool.created_by
+								  where pool.id = $1;`, poolID)
 	if err != nil {
 		return pool, err
 	}
+	defer rows.Close()
 
 	// defining variables for parsing rows from db
 	var (
@@ -181,7 +182,6 @@ func getPoolDetails(poolID string) (Pool, error) {
 		pool.Options = append(pool.Options, option)
 		// add number of votes
 	}
-	defer rows.Close()
 
 	err = rows.Err()
 	if err != nil {
@@ -236,7 +236,8 @@ type newPoolError struct {
 
 // CreateNewPool takes care of handling creation of the new pool in url: /new
 func CreateNewPool(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("templates/newPool.html", "templates/navbar.html", "templates/styles.html"))
+	t := template.Must(template.ParseFiles("templates/newPool.html",
+		"templates/navbar.html", "templates/styles.html"))
 	if r.Method == "GET" {
 		err := t.Execute(w, nil)
 		if err != nil {
@@ -303,7 +304,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 
 		poolID, err := addPoolTitle(poolTitle, tx)
 		if err != nil {
-			fmt.Printf("addPoolTitle: %v", err)
+			fmt.Printf("addPoolTitle: %v\n", err)
 			tx.Rollback()
 			return
 		}
@@ -313,7 +314,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 			option := r.Form[value][0] // text of the voteOption
 			err := addPoolOption(poolID, option, tx)
 			if err != nil {
-				fmt.Printf("addPoolOption: %v", err)
+				fmt.Printf("addPoolOption: %v\n", err)
 				tx.Rollback()
 				return
 			}

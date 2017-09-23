@@ -60,6 +60,7 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 		err = t.Execute(w, Questions)
 		if err != nil {
 			fmt.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 	}

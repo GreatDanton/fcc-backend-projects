@@ -66,7 +66,7 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 	)
 
 	err = global.DB.QueryRow(`SELECT username, password_hash from users
-											WHERE username = $1`, username).Scan(&user, &passHash)
+							  WHERE username = $1`, username).Scan(&user, &passHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows { // if no rows exist

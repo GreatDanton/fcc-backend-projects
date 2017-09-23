@@ -13,8 +13,6 @@ func UserDetails(w http.ResponseWriter, r *http.Request) {
 	switch m := r.Method; m {
 	case "GET":
 		userDetailsGET(w, r)
-	case "POST":
-		fmt.Println("Posting stuff in /u/")
 	default:
 		userDetailsGET(w, r)
 	}
@@ -35,6 +33,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 		"templates/navbar.html", "templates/styles.html"))
 	err := t.Execute(w, user)
 	if err != nil {
+		fmt.Printf("userDetailsGET: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

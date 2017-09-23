@@ -85,7 +85,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// actual database error occured
-		fmt.Printf("userExistCheck: %v", err)
+		fmt.Printf("userExistCheck: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -102,7 +102,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	_, err = global.DB.Exec(`INSERT into users(username, password_hash, email)
 							  values($1, $2, $3)`, username, passwordHash, email)
 	if err != nil {
-		fmt.Printf("registerNewUser: problem inserting new user: %v", err)
+		fmt.Printf("registerNewUser: problem inserting new user: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
