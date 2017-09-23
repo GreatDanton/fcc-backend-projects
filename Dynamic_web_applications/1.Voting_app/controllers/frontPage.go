@@ -23,7 +23,8 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		// getting database response
-		rows, err := global.DB.Query(`SELECT pool.id, pool.title, users.username, pool.time
+		rows, err := global.DB.Query(`SELECT pool.id, pool.title,
+									users.username, pool.time
 									FROM pool
 									LEFT JOIN users on users.id = pool.created_by
 									ORDER BY pool.id desc limit 20`)

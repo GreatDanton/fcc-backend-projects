@@ -10,8 +10,15 @@
 
     <div class="main-container">
         <h1 class="card-title">{{.Username}}</h1>
-        <p> This is page for displaying user data </p>
-        <p> TODO </p>
+        <h2> User pools </h2>
+        {{range $i, $e := .Pools}}
+        <div class="pool">
+            <a class="pool-title" href="/pool/{{$e.ID}}">{{$e.Title}}</a>
+            <p class="pool-details">
+                Votes: {{$e.NumOfVotes}}, Submitted {{$e.Time}} ago
+            </p>
+        </div>
+        {{end}}
     </div>
 </body>
 

@@ -210,23 +210,27 @@ func getPoolDetails(poolID string) (Pool, error) {
 // returns [[Vote option 1, count 1], [Vote option 2, count 2]]
 func getPoolVotes(poolID string) ([][]string, error) {
 	votes := [][]string{} //Votes{}
-	// returns: optionName, number of votes (sorted descending)
-	rows, err := global.DB.Query(`SELECT poolOption.option, count(vote.option_id) from pooloption
+	// returns: optionID, optionName, number of votes => sorted by increasing id
+	// this ensures vote options results are returned the same way as they were posted
+	rows, err := global.DB.Query(`SELECT poolOption.id, poolOption.option,
+								  count(vote.option_id) from pooloption
 								  LEFT JOIN vote
 								  on pooloption.id = vote.option_id
 								  where pooloption.pool_id = $1
-								  group by poolOption.option`, poolID)
+								  group by poolOption.id
+								  order by poolOption.id asc`, poolID)
 	if err != nil {
 		return votes, err
 	}
 	defer rows.Close()
 
 	var (
+		id         string
 		voteOption string
 		count      string
 	)
 	for rows.Next() {
-		err := rows.Scan(&voteOption, &count)
+		err := rows.Scan(&id, &voteOption, &count)
 		if err != nil {
 			return votes, err
 		}
