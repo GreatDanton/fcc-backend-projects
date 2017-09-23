@@ -13,11 +13,12 @@ import (
 
 // Pool structure used to parse values from database
 type Pool struct {
-	ID      string
-	Author  string
-	Title   string
-	Options [][]string // contains [[option title, option_id]]
-	Votes   [][]string // contains [vote Option, vote count]
+	ID            string
+	Author        string
+	Title         string
+	Options       [][]string // contains [[option title, option_id]]
+	Votes         [][]string // contains [vote Option, vote count]
+	ErrorPostVote string
 }
 
 // ViewPool takes care for handling existing pools in /pool/pool_id
@@ -25,18 +26,18 @@ type Pool struct {
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	switch m := r.Method; m {
 	case "GET":
-		displayPool(w, r)
+		displayPool(w, r, Pool{})
 	case "POST":
 		postVote(w, r)
 	default:
-		displayPool(w, r)
+		displayPool(w, r, Pool{})
 	}
 }
 
 // displayPool is handling GET request for VIEW POOL function
 // displayPool displays data for chosen pool /pool/:id and returns
 //404 page if pool does not exist
-func displayPool(w http.ResponseWriter, r *http.Request) {
+func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	poolID := r.URL.Path
 	poolID = strings.Split(poolID, "/")[2]
 
@@ -60,6 +61,9 @@ func displayPool(w http.ResponseWriter, r *http.Request) {
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
 		t := template.Must(template.ParseFiles("templates/poolDetails.html",
 			"templates/navbar.html", "templates/styles.html"))
+		// add possible error messages,
+		// TODO: fix this ugly implementation
+		pool.ErrorPostVote = poolMsg.ErrorPostVote
 		err = t.Execute(w, pool)
 		if err != nil {
 			fmt.Println(err)
@@ -91,6 +95,15 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 			optionID = value[0]
 		}
 	}
+	poolMsg := Pool{}
+	// if no vote option was chosen rerender template and display
+	// error message to user
+	if optionID == "" {
+		poolMsg.ErrorPostVote = "Please pick your vote option"
+		fmt.Println("postVote: no vote option was chosen")
+		displayPool(w, r, poolMsg)
+		return
+	}
 
 	// userID should be logged in user -> authentication part is still missing
 	// voting as User1 for now
@@ -107,15 +120,17 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		// if user did not vote, add users vote into database
 		if err == sql.ErrNoRows {
 			// add vote to database
-			_, err := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
+			_, e := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
 									  values($1, $2, $3)`, poolID, optionID, userID)
-			if err != nil {
+			if e != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
 				return
 			}
 			// refresh page -> redirect to the same page
+			// and prints http: multiple response.WriteHeader calls
 			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
+			return
 		}
 
 		// if an actual error occured, display internal server error msg
