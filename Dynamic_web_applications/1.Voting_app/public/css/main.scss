@@ -1,6 +1,7 @@
 // colors:
 $color-text: #313131;
 $color-text-alt: #f4f4f4;
+$color-text-light: #8a8a8a;
 $color-internal-link: #2D2AE4;
 $color-text-error: #CF1F1F;
 
@@ -31,6 +32,7 @@ $box-shadow-error: 2px 2px 10px rgba(207, 31, 31, 0.3);
 // fonts:
 $font-family-p: "Fira Sans", sans-serif;
 $font-size-p: 14px;
+$font-size-small: 12px;
 
 // radio
 $color-radio-inactive: #c2c0c2;
@@ -113,12 +115,32 @@ h1, h2, h3, h4, h5, h6 {
     padding: 20px;
 }
 
-.vote {
-    min-height: 50px;
-    line-height: 50px;
+.pool {
+    padding: 20px 0;
+    border-bottom: $border-inactive;
+
+    .pool-title {
+        font-size: 18px;
+        display: block;
+        text-decoration: none;
+        margin-bottom: 3px;
+    }
+    .pool-details {
+        color: $color-text;
+        font-size: $font-size-small;
+
+        a {
+            color: $color-text;
+        }
+    }
+}
+
+.pool:nth-last-child(1){
+    border-bottom: none;
 }
 
 
+// radio buttons - voting part
 .vertical-options {
     display: flex;
     flex-flow: column;
@@ -127,6 +149,7 @@ h1, h2, h3, h4, h5, h6 {
     margin: 30px auto;
 }
 
+// radio button
 .vote-option {
     margin: 5px 0;
 }
@@ -162,11 +185,11 @@ h1, h2, h3, h4, h5, h6 {
     width: 500px;
 }
 
-.new-post-question {
+.new-post-title {
     margin-bottom: 40px;
 }
 
-#vote-answers input{
+#vote-options input{
     margin-bottom: 20px;
 }
 

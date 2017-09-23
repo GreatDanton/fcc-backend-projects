@@ -12,14 +12,14 @@
 
         <div class="vertical-fields new-post">
             <form method="post">
-                <div class="new-post-question">
+                <div class="new-post-title">
                     <label>Pool title:</label><br/>
                     <textarea placeholder="Insert pool title" name="poolTitle">{{.Title}}</textarea>
                     <label class="error-message">{{.TitleError}}</label>
                 </div>
 
                 <label class="margin-b-10">Vote Options:</label>
-                <div id="vote-options">
+                <div id="vote-options" class="new-pool-options">
                     <input type="text" placeholder="Option 1" name="option-1" />
                     <input type="text" placeholder="Option 2" name="option-2" />
                     <input type="text" placeholder="Option 3" name="option-3" />

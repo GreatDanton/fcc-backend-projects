@@ -49,11 +49,6 @@ func displayLogIn(w http.ResponseWriter, r *http.Request, errMsg loginErrors) {
 // logIn handles login protocol, sets up session and informs user about the
 // wrong username&password combination
 func logIn(w http.ResponseWriter, r *http.Request) {
-	// 1. Get data from form
-	// 2. Check if user exists
-	// 3. Encrypt password and compare it to hash
-	// 4. Login + sessions
-	// 5. ??
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Println(err)
@@ -80,7 +75,7 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("This user does not exist")
 			return
 		}
-		fmt.Println(err)
+		fmt.Printf("logIn: db: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -91,7 +86,7 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 	// display error message to the user
 	if err != nil {
 		fmt.Printf("Login compare hash passwords: %v\n", err)
-		errMsg.ErrorPassword = "Password do not match"
+		errMsg.ErrorPassword = "Password does not match"
 		displayLogIn(w, r, errMsg)
 		return
 	}

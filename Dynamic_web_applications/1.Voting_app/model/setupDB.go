@@ -58,7 +58,7 @@ func createPoolTable() {
 
 	_, err = global.DB.Exec(`Create table pool(id serial primary key,
 												created_by integer references users(id),
-												time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+												time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 												title text)`)
 	if err != nil {
 		fmt.Printf("Error while creating pool table: %v\n", err)
