@@ -19,6 +19,7 @@ type Pool struct {
 	Options       [][]string // contains [[option title, option_id]]
 	Votes         [][]string // contains [vote Option, vote count]
 	ErrorPostVote string
+	LoggedInUser  User
 }
 
 // ViewPool takes care for handling existing pools in /pool/pool_id
@@ -55,6 +56,8 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 		return
 	}
 	pool.Votes = votes
+	user := LoggedIn(r)
+	pool.LoggedInUser = user
 
 	// check if pool title exists and display relevant template with
 	// pool data filled in
@@ -64,7 +67,7 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 		// add possible error messages,
 		// TODO: fix this ugly implementation
 		pool.ErrorPostVote = poolMsg.ErrorPostVote
-		err = t.Execute(w, pool)
+		err = t.ExecuteTemplate(w, "details", pool)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -74,7 +77,7 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 		t := template.Must(template.ParseFiles("templates/404.html",
 			"templates/navbar.html",
 			"templates/styles.html"))
-		err := t.Execute(w, "")
+		err := t.ExecuteTemplate(w, "404", pool)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -107,7 +110,9 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 
 	// userID should be logged in user -> authentication part is still missing
 	// voting as User1 for now
-	userID := 1
+	user := LoggedIn(r)
+	// use user id of logged in user
+	userID := user.ID
 
 	// check if vote for user already exists
 	var dbVoteID string
@@ -251,14 +256,18 @@ type newPoolError struct {
 	Title            string
 	TitleError       string
 	VoteOptionsError string
+	LoggedInUser     User
 }
 
 // CreateNewPool takes care of handling creation of the new pool in url: /new
 func CreateNewPool(w http.ResponseWriter, r *http.Request) {
+	user := LoggedIn(r)
+	errMsg := newPoolError{LoggedInUser: user}
+
 	t := template.Must(template.ParseFiles("templates/newPool.html",
 		"templates/navbar.html", "templates/styles.html"))
 	if r.Method == "GET" {
-		err := t.Execute(w, nil)
+		err := t.ExecuteTemplate(w, "newPool", errMsg)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -276,7 +285,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		// check if poolTitle exists else return template with error message
 		if len(poolTitle) < 1 {
 			e := newPoolError{TitleError: "Please add title to your pool"}
-			err := t.Execute(w, e)
+			err := t.ExecuteTemplate(w, "newPool", e)
 			if err != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -297,7 +306,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		// if there are not at least 2 options to vote for return error into template
 		if len(order) < 2 {
 			e := newPoolError{Title: poolTitle, VoteOptionsError: "Please add at least two options"}
-			err := t.Execute(w, e)
+			err := t.ExecuteTemplate(w, "newPool", e)
 			if err != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal Server error", http.StatusInternalServerError)

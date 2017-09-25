@@ -13,6 +13,7 @@ import (
 type User struct {
 	ID       string
 	Username string
+	LoggedIn bool
 }
 
 // CreateToken creates signed token string with user id and username as payload
@@ -22,6 +23,7 @@ func CreateToken(user User) (string, error) {
 	claims := make(jwt.MapClaims)
 	claims["id"] = user.ID //User{ID: user.ID, Username: user.Username}
 	claims["username"] = user.Username
+	claims["loggedIn"] = user.LoggedIn
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 	token.Claims = claims
 	tokenEncode := []byte(global.Config.JWTtokenPassword)
@@ -38,7 +40,7 @@ func CreateToken(user User) (string, error) {
 func CreateCookie(id, username string) (http.Cookie, error) {
 	// set cookie and redirect
 	expiration := time.Now().Add(7 * 24 * time.Hour) // cookie expires in 1 week
-	u := User{ID: id, Username: username}
+	u := User{ID: id, Username: username, LoggedIn: true}
 	tokenString, err := CreateToken(u)
 	if err != nil {
 		e := fmt.Errorf("CreateCookie: CreateToken:%v", err)
@@ -65,17 +67,17 @@ func DestroyCookie(r *http.Request) (http.Cookie, error) {
 // LoggedIn checks if cookie is present in client request and returns:
 // true: if user is logged in
 // false: if user is not logged in (cookie is not present, or an error occured)
-func LoggedIn(r *http.Request) (User, bool) {
+func LoggedIn(r *http.Request) User {
 	cookie, err := r.Cookie("GoVote")
 	if err != nil {
-		return User{}, false
+		return User{}
 	}
 	tokenString := cookie.Value
 	u, loggedIn := GetUserData(tokenString)
 	if !loggedIn {
-		return User{}, false
+		return User{}
 	}
-	return u, true
+	return u
 }
 
 // GetUserData gets userData from JWT token string and returns
@@ -103,6 +105,7 @@ func GetUserData(tokenString string) (User, bool) {
 
 	id := token.Claims.(jwt.MapClaims)["id"]
 	username := token.Claims.(jwt.MapClaims)["username"]
+	loggedIn := token.Claims.(jwt.MapClaims)["loggedIn"]
 
 	// type assertion, checking if returned values are actually strings
 	// if they are not return empty user struct
@@ -113,6 +116,11 @@ func GetUserData(tokenString string) (User, bool) {
 	}
 	if usernameStr, ok := username.(string); ok {
 		u.Username = usernameStr
+	} else {
+		return u, false
+	}
+	if loggedInStr, ok := loggedIn.(bool); ok {
+		u.LoggedIn = loggedInStr
 	} else {
 		return u, false
 	}

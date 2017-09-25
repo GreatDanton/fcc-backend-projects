@@ -11,6 +11,11 @@ import (
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 )
 
+type frontPage struct {
+	Pools        []pool
+	LoggedInUser User
+}
+
 type pool struct {
 	ID         string
 	Time       string
@@ -21,8 +26,6 @@ type pool struct {
 
 // FrontPage takes care of displaying front page of Voting Application
 func FrontPage(w http.ResponseWriter, r *http.Request) {
-	user := User{Username: "test", ID: "id_test"}
-	CreateToken(user)
 
 	// getting database response
 	rows, err := global.DB.Query(`SELECT pool.id, pool.title,
@@ -61,9 +64,12 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	user := LoggedIn(r)
+	fp := frontPage{Pools: pools, LoggedInUser: user}
+
 	// displaying template
-	t := template.Must(template.ParseFiles("templates/index.html", "templates/navbar.html"))
-	err = t.Execute(w, pools)
+	t := template.Must(template.ParseFiles("templates/frontPage.html", "templates/navbar.html"))
+	err = t.ExecuteTemplate(w, "frontPage", fp)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

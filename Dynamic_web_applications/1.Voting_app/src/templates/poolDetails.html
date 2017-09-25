@@ -1,3 +1,4 @@
+{{define "details"}}
 <!DOCTYPE HTML>
 
 <head>
@@ -7,13 +8,13 @@
 
 
 <body>
-    {{template "navbar"}}
+    {{template "navbar" .}}
 
     <div class="main-container">
 
         <h1>{{.Title}} </h1>
         <p> Submitted by <a href="/u/{{.Author}}">{{.Author}}</a></p>
-
+        {{if .LoggedInUser.LoggedIn}}
         <form class="vertical-options" method="POST">
             {{range $i, $e := .Options}}
             <div class="row vote-option">
@@ -27,6 +28,9 @@
 
             <input type="hidden" name="poolID" value="{{.ID}}" />
         </form>
+        {{else}}
+        <h2><a href="/login/">Log in</a> now to vote</h2>
+        {{end}}
 
 
         <div class="pool-results">
@@ -50,3 +54,4 @@
 <script src="/public/js/drawChart.js"></script>
 
 </html>
+{{end}}

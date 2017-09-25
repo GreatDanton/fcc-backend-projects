@@ -33,13 +33,17 @@ type loginErrors struct {
 	Username      string
 	ErrorUsername string
 	ErrorPassword string
+	LoggedInUser  User
 }
 
 // used for displaying log in screen and handling error messages
 func displayLogIn(w http.ResponseWriter, r *http.Request, errMsg loginErrors) {
+	user := LoggedIn(r)
+	errMsg.LoggedInUser = user
+
 	t := template.Must(template.ParseFiles("templates/login.html",
 		"templates/navbar.html", "templates/styles.html"))
-	err := t.Execute(w, errMsg)
+	err := t.ExecuteTemplate(w, "login", errMsg)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

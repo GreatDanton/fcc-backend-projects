@@ -24,21 +24,18 @@ func UserDetails(w http.ResponseWriter, r *http.Request) {
 
 // User is used to display user details in /u/username
 type userDetails struct {
-	Username string
-	Pools    []userPool
-	Logged   bool
+	Username     string
+	Pools        []userPool
+	LoggedInUser User
 }
 
 // userDetailsGet renders userDetail template and displays users data
 // username and created pools
 func userDetailsGET(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("GoVote")
-	if err != nil {
-		fmt.Println("userDetailsGET: cookie does not exist:", err)
-	}
-
 	user := userDetails{}
 	user.Username = strings.Split(r.URL.EscapedPath(), "/")[2]
+	u := LoggedIn(r)
+	user.LoggedInUser = u
 
 	userPools, err := getUserPools(user.Username)
 	if err != nil {
@@ -50,7 +47,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 
 	t := template.Must(template.ParseFiles("templates/users.html",
 		"templates/navbar.html", "templates/styles.html"))
-	err = t.Execute(w, user)
+	err = t.ExecuteTemplate(w, "users", user)
 	if err != nil {
 		fmt.Printf("userDetailsGET: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

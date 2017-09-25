@@ -1,3 +1,4 @@
+{{define "frontPage"}}
 <!DOCTYPE HTML>
 
 <head>
@@ -8,11 +9,11 @@
 
 <body>
 
-    {{template "navbar"}}
+    {{template "navbar" .}}
 
     <div class="main-container">
         <h1 class="card-title">Latest pools</h1>
-        {{range .}}
+        {{range .Pools}}
         <div class="pool">
             <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
             <p class="pool-details">
@@ -26,3 +27,4 @@
 
 
 </html>
+{{end}}
