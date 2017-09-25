@@ -26,11 +26,17 @@ func UserDetails(w http.ResponseWriter, r *http.Request) {
 type userDetails struct {
 	Username string
 	Pools    []userPool
+	Logged   bool
 }
 
 // userDetailsGet renders userDetail template and displays users data
 // username and created pools
 func userDetailsGET(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("GoVote")
+	if err != nil {
+		fmt.Println("userDetailsGET: cookie does not exist:", err)
+	}
+
 	user := userDetails{}
 	user.Username = strings.Split(r.URL.EscapedPath(), "/")[2]
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -56,17 +57,18 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := r.Form["username"][0]
+	username := strings.TrimSpace(r.Form["username"][0])
 	password := r.Form["password"][0]
 
 	errMsg := loginErrors{Username: username}
 	var (
+		id       string
 		user     string
 		passHash []byte
 	)
 
-	err = global.DB.QueryRow(`SELECT username, password_hash from users
-							  WHERE username = $1`, username).Scan(&user, &passHash)
+	err = global.DB.QueryRow(`SELECT id, username, password_hash from users
+							  WHERE username = $1`, username).Scan(&id, &user, &passHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows { // if no rows exist
@@ -91,12 +93,42 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// password & username match
-	// Login - TODO: create session
-	// see this: https://stackoverflow.com/questions/25218903/how-are-people-managing-authentication-in-go
-	// also Jason web tokens JWT: https://jwt.io/introduction/
-	// https://stackoverflow.com/questions/36236109/go-and-jwt-simple-authentication
-	fmt.Println("Logged in")
+	// create cookie out id & username
+	cookie, err := CreateCookie(id, username)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	http.SetCookie(w, &cookie) // set cookie -> user is logged in
+
 	url := fmt.Sprintf("/u/%v", username)
 	http.Redirect(w, r, url, http.StatusSeeOther)
+}
+
+// Logout destroys GoVote cookie and with that the user is not logged in anymore
+func Logout(w http.ResponseWriter, r *http.Request) {
+	cookie, err := DestroyCookie(r)
+
+	if err != nil {
+		// no cookie is present but the user press logout - how to deal with this?
+		if err == http.ErrNoCookie {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		// an actual error occured
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &cookie)
+	// redirect to thank you for using our product site
+	t := template.Must(template.ParseFiles("templates/logout.html", "templates/navbar.html", "templates/styles.html"))
+	err = t.Execute(w, nil)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }

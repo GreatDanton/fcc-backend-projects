@@ -23,6 +23,7 @@ func main() {
 	http.HandleFunc("/", controllers.FrontPage)
 	http.HandleFunc("/register/", controllers.Register)
 	http.HandleFunc("/login/", controllers.Login)
+	http.HandleFunc("/logout/", controllers.Logout)
 	http.HandleFunc("/pool/", controllers.ViewPool)
 	http.HandleFunc("/new/", controllers.CreateNewPool)
 	http.HandleFunc("/u/", controllers.UserDetails)
