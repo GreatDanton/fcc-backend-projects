@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // Pool structure used to parse values from database

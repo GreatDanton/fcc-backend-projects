@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/utilities"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 )
 
 // UserDetails is displaying details of chosen user

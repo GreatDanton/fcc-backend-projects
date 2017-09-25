@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // Register is handling registration of Voting application

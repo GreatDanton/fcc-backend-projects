@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // login.go is used for displaying login screen, validating inputs
@@ -93,6 +93,9 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 
 	// password & username match
 	// Login - TODO: create session
+	// see this: https://stackoverflow.com/questions/25218903/how-are-people-managing-authentication-in-go
+	// also Jason web tokens JWT: https://jwt.io/introduction/
+	// https://stackoverflow.com/questions/36236109/go-and-jwt-simple-authentication
 	fmt.Println("Logged in")
 	url := fmt.Sprintf("/u/%v", username)
 	http.Redirect(w, r, url, http.StatusSeeOther)

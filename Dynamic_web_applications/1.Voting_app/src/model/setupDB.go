@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // SetUpDB creates new database and fill it with some data

@@ -117,13 +117,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .pool {
     padding: 20px 0;
-    border-bottom: $border-inactive;
+    border-bottom: 1px dashed $color-text-light;
 
     .pool-title {
         font-size: 18px;
         display: block;
         text-decoration: none;
         margin-bottom: 3px;
+        color: $color-internal-link;
+    }
+    .pool-title:hover {
+        text-decoration: underline;
     }
     .pool-details {
         color: $color-text;
