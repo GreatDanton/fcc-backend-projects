@@ -29,11 +29,11 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 
 	// getting database response
 	rows, err := global.DB.Query(`SELECT pool.id, pool.title,
-									users.username, pool.time,
-									(select count(*) as votes from vote where vote.pool_id = pool.id)
-									FROM pool
-									LEFT JOIN users on users.id = pool.created_by
-									ORDER BY pool.id desc limit 20`)
+								  users.username, pool.time,
+								  (select count(*) as votes from vote where vote.pool_id = pool.id)
+								  FROM pool
+								  LEFT JOIN users on users.id = pool.created_by
+								  ORDER BY pool.id desc limit 20`)
 	if err != nil {
 		log.Fatal(err)
 	}

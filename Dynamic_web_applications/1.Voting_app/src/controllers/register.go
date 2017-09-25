@@ -103,16 +103,23 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// register our new user
-	_, err = global.DB.Exec(`INSERT into users(username, password_hash, email)
-							  values($1, $2, $3)`, username, passwordHash, email)
+	var id string
+	err = global.DB.QueryRow(`INSERT into users(username, password_hash, email)
+								values($1, $2, $3) RETURNING id`, username, passwordHash, email).Scan(&id)
 	if err != nil {
 		fmt.Printf("registerNewUser: problem inserting new user: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	// if everything is allright, login user and redirect him to his page
-	// login user: TODO
+	// set up session
+	cookie, err := CreateCookie(id, username)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	http.SetCookie(w, &cookie)
 	url := fmt.Sprintf("/u/%v", username)
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }

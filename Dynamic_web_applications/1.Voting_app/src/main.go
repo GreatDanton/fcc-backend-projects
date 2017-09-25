@@ -13,8 +13,6 @@ import (
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
-// Config struct for holding data from config.json file
-
 // main function for handling web application
 func main() {
 	config := global.ReadConfig()

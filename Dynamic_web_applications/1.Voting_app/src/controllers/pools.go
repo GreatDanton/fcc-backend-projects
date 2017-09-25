@@ -330,7 +330,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		poolID, err := addPoolTitle(poolTitle, tx)
+		poolID, err := addPoolTitle(poolTitle, user, tx)
 		if err != nil {
 			fmt.Printf("addPoolTitle: %v\n", err)
 			tx.Rollback()
@@ -356,9 +356,9 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 }
 
 // add post title to database
-func addPoolTitle(title string, tx *sql.Tx) (string, error) {
+func addPoolTitle(title string, user User, tx *sql.Tx) (string, error) {
 	// get user id from currently logged in user
-	userID := 1 // for now using 1
+	userID := user.ID
 
 	var id string
 	err := tx.QueryRow(`INSERT into pool(created_by, title)
@@ -374,7 +374,7 @@ func addPoolTitle(title string, tx *sql.Tx) (string, error) {
 // add new post questions to database
 func addPoolOption(poolID, option string, tx *sql.Tx) error {
 	stmt, err := tx.Prepare(`INSERT into poolOption(pool_id, option)
-								values($1, $2);`)
+							 values($1, $2);`)
 	if err != nil {
 		return err
 	}

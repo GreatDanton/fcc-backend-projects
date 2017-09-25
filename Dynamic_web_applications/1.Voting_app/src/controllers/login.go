@@ -12,11 +12,8 @@ import (
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
-// login.go is used for displaying login screen, validating inputs
-// and taking care of user sessions
-
-// Login is handling login part + authentication
-// TODO:
+// Login is handling login part of the application, by displaying
+// login screen, validating inputs and taking care of user sessions
 func Login(w http.ResponseWriter, r *http.Request) {
 	switch m := r.Method; m {
 	case "GET":
