@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -36,7 +37,7 @@ func CreateToken(user User) (string, error) {
 }
 
 // CreateCookie creates cookie out of inserted arguments (user.id, user.username)
-// and returns error when that is not possible
+// and returns cookie or error when that is not possible
 func CreateCookie(id, username string) (http.Cookie, error) {
 	// set cookie and redirect
 	expiration := time.Now().Add(7 * 24 * time.Hour) // cookie expires in 1 week
@@ -64,9 +65,8 @@ func DestroyCookie(r *http.Request) (http.Cookie, error) {
 	return c, nil
 }
 
-// LoggedIn checks if cookie is present in client request and returns:
-// true: if user is logged in
-// false: if user is not logged in (cookie is not present, or an error occured)
+// LoggedIn checks if GoVote(auth) cookie is present in client request and
+// returns userStruct with {ID: user.id, Username: user.username, LoggedIn: true/false}
 func LoggedIn(r *http.Request) User {
 	cookie, err := r.Cookie("GoVote")
 	if err != nil {
@@ -126,4 +126,35 @@ func GetUserData(tokenString string) (User, bool) {
 	}
 
 	return u, true
+}
+
+// createUserSession creates session for current user, used for loggin user in.
+// Currently Logged In user is defined with Cookie that contains jwt string
+// with the relevant user data (id: user.id, username: user.username, loggedIn: bool)
+func createUserSession(id, username string, w http.ResponseWriter) error {
+	cookie, err := CreateCookie(id, username)
+	if err != nil {
+		return err
+	}
+	// set cookie that that defines logged in user in users browser
+	http.SetCookie(w, &cookie)
+	return nil
+}
+
+// destroyUserSession destroys session by changing/emptying fields in currently active
+// user cookie
+func destroyUserSession(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := DestroyCookie(r)
+	if err != nil {
+		// no cookie is present but the user press logout
+		// TODO: how do we deal with this
+		if err == http.ErrNoCookie {
+			log.Println("destroySession, no cookie is present but destroy is called:", err)
+			return err
+		}
+		log.Println(err)
+		return err
+	}
+	http.SetCookie(w, &cookie)
+	return nil
 }

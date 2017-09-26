@@ -148,7 +148,7 @@ func userExistCheck(username string) error {
 	return fmt.Errorf("%v", "User already exists")
 }
 
-// hashPassword hashes users password
+// hashPassword hashes inserted users password
 func hashPassword(password string) ([]byte, error) {
 	passwordBytes := []byte(password)
 	hashedPassword, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.DefaultCost)

@@ -26,6 +26,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// used for displaying errors on login screen as well
+// as rendering different view for loggedInUsers
 type loginErrors struct {
 	Username      string
 	ErrorUsername string
@@ -33,11 +35,18 @@ type loginErrors struct {
 	LoggedInUser  User
 }
 
-// used for displaying log in screen and handling error messages
+// displayLogIn function is used for displaying log in screen and
+//handling error messages on login attempt
 func displayLogIn(w http.ResponseWriter, r *http.Request, errMsg loginErrors) {
 	user := LoggedIn(r)
-	errMsg.LoggedInUser = user
+	// if user is already logged in, redirect to front page
+	if user.LoggedIn {
+		fmt.Println("displayLogin: user is already logged in")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
+	errMsg.LoggedInUser = user
 	t := template.Must(template.ParseFiles("templates/login.html",
 		"templates/navbar.html", "templates/styles.html"))
 	err := t.ExecuteTemplate(w, "login", errMsg)
@@ -93,38 +102,34 @@ func logIn(w http.ResponseWriter, r *http.Request) {
 		displayLogIn(w, r, errMsg)
 		return
 	}
-
-	// create cookie out id & username
-	cookie, err := CreateCookie(id, username)
+	// everything is allright, log in user
+	err = createUserSession(id, username, w)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	http.SetCookie(w, &cookie) // set cookie -> user is logged in
-
-	url := fmt.Sprintf("/u/%v", username)
-	http.Redirect(w, r, url, http.StatusSeeOther)
+	// User is logged in => redirect to front page
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// Logout destroys GoVote cookie and with that the user is not logged in anymore
+// Logout destroys GoVote cookie and with that the user is logged out.
 func Logout(w http.ResponseWriter, r *http.Request) {
-	cookie, err := DestroyCookie(r)
-
+	// check if user is logged in, if not don't handle his request
+	user := LoggedIn(r)
+	if !user.LoggedIn {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	// user is logged in, destroy userSession and log him out
+	err := destroyUserSession(w, r)
 	if err != nil {
-		// no cookie is present but the user press logout - how to deal with this?
-		if err == http.ErrNoCookie {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-		// an actual error occured
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	http.SetCookie(w, &cookie)
-	// redirect to thank you for using our product site
+	// redirect to thank you for using our product page
 	t := template.Must(template.ParseFiles("templates/logout.html", "templates/navbar.html", "templates/styles.html"))
 	err = t.Execute(w, nil)
 	if err != nil {

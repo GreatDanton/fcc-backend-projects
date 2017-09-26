@@ -13,13 +13,13 @@ import (
 
 // Pool structure used to parse values from database
 type Pool struct {
-	ID            string
-	Author        string
-	Title         string
+	ID            string     // id of the author
+	Author        string     // author username
+	Title         string     // title of the pool
 	Options       [][]string // contains [[option title, option_id]]
-	Votes         [][]string // contains [vote Option, vote count]
-	ErrorPostVote string
-	LoggedInUser  User
+	Votes         [][]string // contains [[vote Option, vote count]]
+	ErrorPostVote string     // display error when user submits his vote
+	LoggedInUser  User       // User struct for rendering different templates based on user login status
 }
 
 // ViewPool takes care for handling existing pools in /pool/pool_id
@@ -86,9 +86,14 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	}
 }
 
-// postVote takes care of POST request on ViewPOOL
-// This function handles posting votes on each /pool/:id
+// postVote function handles posting votes on each /pool/:id
 func postVote(w http.ResponseWriter, r *http.Request) {
+	// check if user is logged in, if it's not return 403 forbidden
+	user := LoggedIn(r)
+	if !user.LoggedIn {
+		http.Redirect(w, r, r.URL.Path, http.StatusForbidden)
+		return
+	}
 	r.ParseForm()
 	var optionID string
 	poolID := r.Form["poolID"][0]
@@ -110,7 +115,6 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 
 	// userID should be logged in user -> authentication part is still missing
 	// voting as User1 for now
-	user := LoggedIn(r)
 	// use user id of logged in user
 	userID := user.ID
 
@@ -200,7 +204,6 @@ func getPoolDetails(poolID string) (Pool, error) {
 
 		option := []string{poolOption, poolOptionID}
 		pool.Options = append(pool.Options, option)
-		// add number of votes
 	}
 
 	err = rows.Err()
@@ -262,6 +265,13 @@ type newPoolError struct {
 // CreateNewPool takes care of handling creation of the new pool in url: /new
 func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 	user := LoggedIn(r)
+	// check if user is logged in, otherwise redirect to /login page
+	if !user.LoggedIn {
+		fmt.Println("")
+		http.Redirect(w, r, "/login", http.StatusForbidden)
+		return
+	}
+
 	errMsg := newPoolError{LoggedInUser: user}
 
 	t := template.Must(template.ParseFiles("templates/newPool.html",
