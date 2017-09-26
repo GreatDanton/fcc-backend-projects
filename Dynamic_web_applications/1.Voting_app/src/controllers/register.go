@@ -95,9 +95,9 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hash user inserted password
-	passwordHash, err := hashPassword(password)
+	passwordHash, err := HashPassword(password)
 	if err != nil {
-		fmt.Printf("hashPassword: %v \n", err)
+		fmt.Printf("HashPassword: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -148,8 +148,8 @@ func userExistCheck(username string) error {
 	return fmt.Errorf("%v", "User already exists")
 }
 
-// hashPassword hashes inserted users password
-func hashPassword(password string) ([]byte, error) {
+// HashPassword hashes inserted users password
+func HashPassword(password string) ([]byte, error) {
 	passwordBytes := []byte(password)
 	hashedPassword, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.DefaultCost)
 	if err != nil {

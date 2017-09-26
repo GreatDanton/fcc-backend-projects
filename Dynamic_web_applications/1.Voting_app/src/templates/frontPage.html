@@ -13,14 +13,18 @@
 
     <div class="main-container">
         <h1 class="card-title">Latest pools</h1>
-        {{range .Pools}}
-        <div class="pool">
-            <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
-            <p class="pool-details">
-                Votes: {{.NumOfVotes}}, Submitted by <a href="/u/{{.Author}}">{{.Author}}</a>, {{.Time}} ago
-            </p>
+        <div class="pool-container">
+            {{range .Pools}}
+            <div class="pool">
+                <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
+                <p class="pool-details">
+                    Votes: {{.NumOfVotes}}, Submitted by <a href="/u/{{.Author}}">{{.Author}}</a>, {{.Time}} ago
+                </p>
+            </div>
+            {{end}}
         </div>
-        {{end}}
+        <!-- pagination-->
+        {{template "pagination" .}}
     </div>
 
 </body>

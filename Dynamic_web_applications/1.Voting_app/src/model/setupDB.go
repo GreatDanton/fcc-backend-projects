@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/controllers"
+
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
@@ -33,15 +35,26 @@ func createUserTable() {
 		fmt.Println(err)
 	}
 
+	passHash, err := controllers.HashPassword("bla bla")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	_, err = global.DB.Exec(`insert into users(username, email, password_hash)
-										values('User1', 'email1@mail.com', 'bla bla bla')`)
+										values('User1', 'email1@mail.com', $1)`, passHash)
 	if err != nil {
 		fmt.Println("Creating first user error:")
 		fmt.Println(err)
 	}
 
+	passHash, err = controllers.HashPassword("bla2")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	_, err = global.DB.Exec(`insert into users(username, email, password_hash)
-										values('User2', 'email2@mail.com', 'bla2 bla bla')`)
+										values('User2', 'email2@mail.com', $1)`, passHash)
 	if err != nil {
 		fmt.Println("Creating second user error:")
 		fmt.Println(err)

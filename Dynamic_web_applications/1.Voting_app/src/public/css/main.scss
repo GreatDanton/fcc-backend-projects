@@ -139,8 +139,10 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-.pool:nth-last-child(1){
-    border-bottom: none;
+.pool-container {
+    .pool:nth-last-child(1) {
+        border-bottom: none;
+    }
 }
 
 

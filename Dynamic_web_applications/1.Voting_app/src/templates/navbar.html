@@ -1,6 +1,6 @@
 {{define "navbar"}}
 <div class="navbar">
-    <a class="navbar-title" href="/">Voting application</a>
+    <a class="navbar-title" href="/">GoVote</a>
     <div class="navbar-spacer"></div>
     {{if .LoggedInUser.LoggedIn}}
     <a class="navbar-btn" href="/u/{{.LoggedInUser.Username}}">{{.LoggedInUser.Username}}</a>

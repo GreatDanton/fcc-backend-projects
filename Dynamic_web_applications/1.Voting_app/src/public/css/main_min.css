@@ -225,6 +225,13 @@ button {
 button:hover {
   border: 1px solid #8a8a8a; }
 
+.btn-default {
+  background-color: #eff3f6;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#fafbfc), color-stop(90%, #eff3f6));
+  background-image: -webkit-linear-gradient(top, #fafbfc 0%, #eff3f6 90%);
+  background-image: -o-linear-gradient(top, #fafbfc 0%, #eff3f6 90%);
+  background-image: linear-gradient(-180deg, #fafbfc 0%, #eff3f6 90%); }
+
 .btn-submit {
   margin-top: 30px;
   background-color: #3f51b5;

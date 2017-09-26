@@ -18,6 +18,11 @@ button:hover {
     border: $border-active;
 }
 
+.btn-default {
+    background-color: #eff3f6;
+    background-image: linear-gradient(-180deg, #fafbfc 0%, #eff3f6 90%);
+}
+
 
 // button used to submit forms
 .btn-submit {
