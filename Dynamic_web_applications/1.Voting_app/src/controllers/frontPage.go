@@ -16,8 +16,18 @@ import (
 type frontPage struct {
 	Pools        []pool
 	LoggedInUser User
-	LastID       int
-	Pagination   bool
+	Pagination   pagination
+	/* 	MaxIDNext      string
+	   	MaxIDPrev      string
+	   	PaginationNext bool
+	   	PaginationPrev bool */
+}
+
+type pagination struct {
+	MaxIDNext      string
+	MaxIDPrev      string
+	PaginationNext bool
+	PaginationPrev bool
 }
 
 type pool struct {
@@ -33,15 +43,13 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 	switch m := r.Method; m {
 	case "GET":
 		displayFrontPage(w, r)
-	case "POST":
-		nextPage(w, r)
 	default:
 		displayFrontPage(w, r)
 	}
 }
 
 // getMaxID from url that defines pool with maximum id parsed from db
-func getMaxID(r *http.Request) (int, error) {
+func getURLParams(r *http.Request) (int, error) {
 	q := r.URL.Query()
 	urlID := q.Get("maxID")
 	maxID := 0
@@ -82,18 +90,22 @@ func fpQuery(maxID int) (*sql.Rows, error) {
 
 // displaysFrontPage with latest pools
 func displayFrontPage(w http.ResponseWriter, r *http.Request) {
-	maxID, err := getMaxID(r)
-	// user added something into url
+	maxID, err := getURLParams(r)
+	// user added something into url, display front page
 	if err != nil {
 		fmt.Println(err)
+		maxID = 0
 	}
 
 	// getting database response based on the maxID
 	rows, err := fpQuery(maxID)
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
+
 	defer rows.Close()
 
 	var (
@@ -121,21 +133,12 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// grab last id
-	lastID, err := strconv.Atoi(pools[len(pools)-1].ID)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	user := LoggedIn(r)
+	maxIDNext, dpn := displayNextButton(pools)
+	maxIDPrev, dpp := displayPrevButton(maxID, pools)
+	p := pagination{MaxIDNext: maxIDNext, PaginationNext: dpn, MaxIDPrev: maxIDPrev, PaginationPrev: dpp}
 
-	// display next button or not?
-	dp := true
-	if len(pools) < 20 { // if array of posts is less than limit of our query
-		dp = false
-	}
-
-	fp := frontPage{Pools: pools, LoggedInUser: user, LastID: lastID, Pagination: dp}
+	fp := frontPage{Pools: pools, LoggedInUser: user, Pagination: p}
 
 	// displaying template
 	t := template.Must(template.ParseFiles("templates/frontPage.html", "templates/navbar.html", "templates/pagination.html"))
@@ -148,7 +151,41 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// nextPage paginates the results and displays the next x pools
-func nextPage(w http.ResponseWriter, r *http.Request) {
+// displayNextButton returns newMaxID for displaying it in url and bool (true/false)
+// true => display next button
+// false => do not display next button
+func displayNextButton(pools []pool) (string, bool) {
+	newMaxID := pools[len(pools)-1].ID
+	displayPagination := true
+	if len(pools) < 20 {
+		displayPagination = false
+	}
+	return newMaxID, displayPagination
+}
 
+// displayPrevButton determine wheter to display previous button or not
+// and returns MaxIDPrev for displaying previous page and bool
+// true => display previous button
+// false => hide previous button
+func displayPrevButton(maxID int, pools []pool) (string, bool) {
+	// when maxID = 0, we are on the front page
+	if maxID == 0 {
+		return "", false
+	}
+	// if maxID is bigger than first item in pools that means we are on the front
+	// page and should not display previous button
+	poolID, err := strconv.Atoi(pools[0].ID)
+	if err != nil {
+		return "", false
+	}
+	// this means we are coming from previous
+	// to the front page via prev button
+	if maxID > poolID { //If previous maxID + 20 > current pool.ID
+		return "", false
+	}
+	// if none of the above applies move to previous page by increasing
+	// maxID by 20
+	maxID += 20
+	id := strconv.Itoa(maxID)
+	return id, true
 }
