@@ -34,7 +34,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	user := userDetails{}
 	urlUser, err := url.PathUnescape(r.URL.EscapedPath())
 	if err != nil {
-		fmt.Println("Cannot unescape url")
+		fmt.Println("UserDetailsGet: Cannot unescape url")
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -61,6 +61,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get pools from user
 	userPools, err := getUserPools(user.Username)
 	if err != nil {
 		fmt.Printf("getUserPool: %v\n", err)

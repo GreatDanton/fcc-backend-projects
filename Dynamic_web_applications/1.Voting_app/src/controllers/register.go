@@ -91,6 +91,22 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check if email already exists in database, emails should be unique
+	exist, err = userEmailCheck(email)
+	if err != nil {
+		fmt.Println("Register: userEmailCheck:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// email exists in database display error message
+	if exist {
+		fmt.Println("Register: userEmailCheck: Email is already registered")
+		errMsg.ErrorEmail = "Email is already registered"
+		registerGET(w, r, errMsg)
+		return
+	}
+
 	// hash user inserted password
 	passwordHash, err := HashPassword(password)
 	if err != nil {
@@ -126,7 +142,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 // true => user already in database
 func userExistCheck(username string) (bool, error) {
 	var usr string
-	err := global.DB.QueryRow(`SELECT users.username from users
+	err := global.DB.QueryRow(`SELECT username from users
 							   where username = $1`, username).Scan(&usr)
 	if err != nil {
 		// if user does not exist, db returns 0 rows
@@ -138,6 +154,25 @@ func userExistCheck(username string) (bool, error) {
 		return true, err
 	}
 	// user exists
+	return true, nil
+}
+
+// userEmailCheck checks if email already exists in database
+// false => email does not exist
+// true => email does exist in db
+func userEmailCheck(email string) (bool, error) {
+	var e string
+	err := global.DB.QueryRow(`SELECT email from users
+							   where email = $1`, email).Scan(&e)
+	if err != nil {
+		// email does not exist
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		// an error occurs on db lookup
+		return true, err
+	}
+	// email does exist in database
 	return true, nil
 }
 
