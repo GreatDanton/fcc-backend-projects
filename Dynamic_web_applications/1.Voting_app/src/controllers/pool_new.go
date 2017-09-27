@@ -46,8 +46,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		poolTitle := r.Form["poolTitle"][0]
-		poolTitle = strings.TrimSpace(poolTitle)
+		poolTitle := strings.TrimSpace(r.Form["poolTitle"][0])
 		// check if poolTitle exists else return template with error message
 		if len(poolTitle) < 1 {
 			e := newPoolError{TitleError: "Please add title to your pool"}
@@ -61,8 +60,8 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 
 		order := make([]string, 0, len(r.Form))
 		// r.Form returns a map, we have to add fields in db in correct order
+		//  (=> that is in the same order the user wanted to post options)
 		// so we don't confuse the end user, why their options are borked
-		// => that is in the same order the user wanted to post options
 		for key, option := range r.Form {
 			voteOption := strings.TrimSpace(option[0])     // trim empty space from pool option
 			if key != "poolTitle" && len(voteOption) > 0 { // filter out empty fields and title

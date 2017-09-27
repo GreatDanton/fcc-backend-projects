@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,13 +17,7 @@ type frontPage struct {
 	Pagination   pagination
 }
 
-type pagination struct {
-	MaxIDNext      string
-	MaxIDPrev      string
-	PaginationNext bool
-	PaginationPrev bool
-}
-
+// Pool is structure that contains all relevant pool data
 type pool struct {
 	ID         string
 	Time       string
@@ -44,7 +37,7 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // getMaxID from url that defines pool with maximum id parsed from db
-func getURLParams(r *http.Request) int {
+func getMaxIDParam(r *http.Request) int {
 	q := r.URL.Query()
 	urlID := q.Get("maxID")
 	maxID := 0
@@ -59,44 +52,38 @@ func getURLParams(r *http.Request) int {
 	return maxID
 }
 
-// fpQuery picks the most suitable sql query based on maxID of pool and returns
-// sql rows and error
-func fpQuery(maxID int) (*sql.Rows, error) {
-	if maxID == 0 { // maxID = 0 when we perform the first query on "/"
-		rows, err := global.DB.Query(`SELECT pool.id, pool.title,
-								  users.username, pool.time,
-								  (select count(*) as votes from vote where vote.pool_id = pool.id)
-								  FROM pool
-								  LEFT JOIN users on users.id = pool.created_by
-								  ORDER BY pool.id desc
-								  limit 20`)
-		return rows, err
-	}
-
-	rows, err := global.DB.Query(`SELECT pool.id, pool.title,
-								  users.username, pool.time,
-								  (select count(*) as votes from vote where vote.pool_id = pool.id)
-								  FROM pool
-								  LEFT JOIN users on users.id = pool.created_by
-								  WHERE pool.id <= $1
-								  ORDER BY pool.id desc
-								  limit 20`, maxID)
-	return rows, err
-}
-
 // displaysFrontPage with latest pools
 func displayFrontPage(w http.ResponseWriter, r *http.Request) {
-	maxID := getURLParams(r)
-
+	maxID := getMaxIDParam(r)
+	limit := 10
 	// getting database response based on the maxID
-	rows, err := fpQuery(maxID)
-
+	pools, err := getFrontPageData(maxID, limit)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
+	user := LoggedIn(r)
+	p := handlePoolPagination(maxID, pools, limit)
+	fp := frontPage{Pools: pools, LoggedInUser: user, Pagination: p}
+
+	// displaying template
+	err = global.Templates.ExecuteTemplate(w, "frontPage", fp)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetFrontPageData returns array of pools based on chosen maxID(max pool id) and limit of results
+func getFrontPageData(maxID int, limit int) ([]pool, error) {
+	pools := []pool{}
+	rows, err := fpQuery(maxID, limit)
+	if err != nil {
+		return pools, err
+	}
 	defer rows.Close()
 
 	var (
@@ -107,12 +94,10 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 		numOfVotes string
 	)
 
-	pools := []pool{}
-
 	for rows.Next() {
 		err := rows.Scan(&id, &title, &author, &time, &numOfVotes)
 		if err != nil {
-			log.Fatal(err)
+			return pools, err
 		}
 		// get time difference in human readable format
 		t := utilities.TimeDiff(time)
@@ -121,68 +106,33 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		return pools, err
 	}
-
-	user := LoggedIn(r)
-	p := handlePoolPagination(maxID, pools)
-	fp := frontPage{Pools: pools, LoggedInUser: user, Pagination: p}
-
-	// displaying template
-	err = global.Templates.ExecuteTemplate(w, "frontPage", fp)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
+	// if error does not happen, return results
+	return pools, nil
 }
 
-// displayNextButton returns newMaxID for displaying it in url and bool (true/false)
-// true => display next button
-// false => do not display next button
-func displayNextButton(pools []pool) (string, bool) {
-	newMaxID := pools[len(pools)-1].ID
-	displayPagination := true
-	if len(pools) < 20 {
-		displayPagination = false
+// fpQuery picks the most suitable sql query based on maxID of pool and returns
+// sql rows and error
+func fpQuery(maxID int, limit int) (*sql.Rows, error) {
+	if maxID == 0 { // maxID = 0 when we perform the first query on "/"
+		rows, err := global.DB.Query(`SELECT pool.id, pool.title,
+								  users.username, pool.time,
+								  (select count(*) as votes from vote where vote.pool_id = pool.id)
+								  FROM pool
+								  LEFT JOIN users on users.id = pool.created_by
+								  ORDER BY pool.id desc
+								  limit $1`, limit)
+		return rows, err
 	}
-	return newMaxID, displayPagination
-}
 
-// displayPrevButton determine wheter to display previous button or not
-// and returns MaxIDPrev for displaying previous page and bool
-// true => display previous button
-// false => hide previous button
-func displayPrevButton(maxID int, pools []pool) (string, bool) {
-	// when maxID = 0, we are on the front page
-	if maxID == 0 {
-		return "", false
-	}
-	// if maxID is bigger than first item in pools that means we are on the front
-	// page and should not display previous button
-	poolID, err := strconv.Atoi(pools[0].ID)
-	if err != nil {
-		return "", false
-	}
-	// this means we are coming from previous
-	// to the front page via prev button
-	if maxID > poolID { //If previous maxID + 20 > current pool.ID
-		return "", false
-	}
-	// if none of the above applies move to previous page by increasing
-	// maxID by 20
-	maxID += 20
-	id := strconv.Itoa(maxID)
-	return id, true
-}
-
-// returns pagination struct that handles moving back and forth between
-// the pool pages and displaying appropriate buttons
-func handlePoolPagination(maxID int, pools []pool) pagination {
-	maxIDNext, dpn := displayNextButton(pools)
-	maxIDPrev, dpp := displayPrevButton(maxID, pools)
-	p := pagination{MaxIDNext: maxIDNext, PaginationNext: dpn,
-		MaxIDPrev: maxIDPrev, PaginationPrev: dpp}
-	return p
+	rows, err := global.DB.Query(`SELECT pool.id, pool.title,
+								  users.username, pool.time,
+								  (select count(*) as votes from vote where vote.pool_id = pool.id)
+								  FROM pool
+								  LEFT JOIN users on users.id = pool.created_by
+								  WHERE pool.id < $1
+								  ORDER BY pool.id desc
+								  limit $2`, maxID, limit)
+	return rows, err
 }
