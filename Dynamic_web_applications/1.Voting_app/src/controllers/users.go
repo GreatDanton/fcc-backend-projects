@@ -3,7 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
 	"time"
 
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
@@ -32,11 +32,34 @@ type userDetails struct {
 // username and created pools
 func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	user := userDetails{}
-	user.Username = strings.Split(r.URL.EscapedPath(), "/")[2]
+	urlUser, err := url.PathUnescape(r.URL.EscapedPath())
+	if err != nil {
+		fmt.Println("Cannot unescape url")
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	user.Username = urlUser[3:]
+
 	u := LoggedIn(r)
 	user.LoggedInUser = u
-	fmt.Println("userDetailsGET:", user.Username)
-	fmt.Println(r.URL.RawPath)
+
+	exist, err := userExistCheck(user.Username)
+	if err != nil { // user does not exist
+		fmt.Println("userExistCheck:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	// if user does not exist, display 404 page
+	if !exist {
+		err = global.Templates.ExecuteTemplate(w, "404", nil)
+		if err != nil {
+			fmt.Println("err")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 
 	userPools, err := getUserPools(user.Username)
 	if err != nil {

@@ -76,19 +76,18 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if username already exist
-	err := userExistCheck(username)
+	exist, err := userExistCheck(username)
+	// actual database error occured
 	if err != nil {
-		e := fmt.Sprint(err)
-		// inform our user his username is already taken
-		if e == "User already exists" {
-			errMsg.ErrorUsername = "Username already taken"
-			fmt.Println("Username already exists")
-			registerGET(w, r, errMsg)
-			return
-		}
-		// actual database error occured
 		fmt.Printf("userExistCheck: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	// user already exists
+	if exist { // exist == true
+		errMsg.ErrorUsername = "Username already taken"
+		fmt.Println("Username already exists")
+		registerGET(w, r, errMsg)
 		return
 	}
 
@@ -122,28 +121,24 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
-// used to parse user fields from db if userExists
-type userCheck struct {
-	Username string
-	Email    string
-}
-
 // check if user exists and return error if it does or an error happened
-func userExistCheck(username string) error {
-	user := userCheck{}
+// false => user does not exist
+// true => user already in database
+func userExistCheck(username string) (bool, error) {
+	var usr string
 	err := global.DB.QueryRow(`SELECT users.username from users
-							   where username = $1`, username).Scan(&user.Username)
+							   where username = $1`, username).Scan(&usr)
 	if err != nil {
 		// if user does not exist, db returns 0 rows
 		// we register him in outer function
 		if err == sql.ErrNoRows {
-			return nil
+			return false, nil
 		}
 		// if an actual error happens on db lookup, return err
-		return err
+		return true, err
 	}
-	// user exists, return error
-	return fmt.Errorf("%v", "User already exists")
+	// user exists
+	return true, nil
 }
 
 // HashPassword hashes inserted users password
