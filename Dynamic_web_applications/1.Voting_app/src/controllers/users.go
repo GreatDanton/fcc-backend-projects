@@ -35,6 +35,8 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	user.Username = strings.Split(r.URL.EscapedPath(), "/")[2]
 	u := LoggedIn(r)
 	user.LoggedInUser = u
+	fmt.Println("userDetailsGET:", user.Username)
+	fmt.Println(r.URL.RawPath)
 
 	userPools, err := getUserPools(user.Username)
 	if err != nil {

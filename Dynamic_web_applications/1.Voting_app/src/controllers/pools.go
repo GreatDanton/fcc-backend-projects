@@ -7,12 +7,13 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
+
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // Pool structure used to parse values from database
 type Pool struct {
-	ID            string     // id of the author
 	Author        string     // author username
 	Title         string     // title of the pool
 	Options       [][]string // contains [[option title, option_id]]
@@ -38,8 +39,7 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 // displayPool displays data for chosen pool /pool/:id and returns
 //404 page if pool does not exist
 func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
-	poolID := r.URL.Path
-	poolID = strings.Split(poolID, "/")[2]
+	poolID := strings.Split(r.URL.EscapedPath(), "/")[2]
 
 	pool, err := getPoolDetails(poolID)
 	if err != nil {
@@ -89,13 +89,12 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 	var optionID string
-	poolID := r.Form["poolID"][0]
+	poolID := strings.Split(r.URL.EscapedPath(), "/")[2]
 
-	for key, value := range r.Form {
-		if key != "poolID" {
-			optionID = value[0]
-		}
+	for _, value := range r.Form { // f.Form contains only one option
+		optionID = value[0]
 	}
+
 	poolMsg := Pool{}
 	// if no vote option was chosen rerender template and display
 	// error message to user
@@ -106,15 +105,30 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// userID should be logged in user -> authentication part is still missing
-	// voting as User1 for now
+	// check if user is changing vote options via html, this prevents
+	// spamming votes for options that do not exist for this poolID
+	voteOptions, err := getVoteOptions(poolID)
+	if err != nil {
+		fmt.Println("postVote:", "getVoteOptions:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	ok := utilities.StringInSlice(optionID, voteOptions)
+	if !ok {
+		poolMsg.ErrorPostVote = "You'll have to be more clever."
+		fmt.Println("PostVote:", "User is changing vote options")
+		displayPool(w, r, poolMsg)
+		return
+	}
+
 	// use user id of logged in user
 	userID := user.ID
 
 	// check if vote for user already exists
 	var dbVoteID string
 	var dbOption string
-	err := global.DB.QueryRow(`SELECT id, option_id from vote
+	err = global.DB.QueryRow(`SELECT id, option_id from vote
 							   WHERE voted_by = $1
 							   AND pool_id = $2`, userID, poolID).Scan(&dbVoteID, &dbOption)
 
@@ -160,6 +174,35 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 }
 
+// getVoteOptions returns array of vote options that exist in db
+// for chosen poolID.
+func getVoteOptions(poolID string) ([]string, error) {
+	options := []string{}
+	rows, err := global.DB.Query(`SELECT id from pooloption
+								  WHERE pool_id = $1`, poolID)
+	if err != nil {
+		return options, err
+	}
+	defer rows.Close()
+
+	var (
+		id string
+	)
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			return options, err
+		}
+		options = append(options, id)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return options, err
+	}
+	return options, nil
+}
+
 //
 // getPoolDetails returns {poolID, Title, Author, [pooloption, pooloptionID]}
 // from database for chosen poolID
@@ -184,8 +227,6 @@ func getPoolDetails(poolID string) (Pool, error) {
 		poolOption   string
 		poolOptionID string
 	)
-	// assign ID
-	pool.ID = poolID
 	// parsing rows from database
 	for rows.Next() {
 		err := rows.Scan(&title, &author, &poolOption, &poolOptionID)
