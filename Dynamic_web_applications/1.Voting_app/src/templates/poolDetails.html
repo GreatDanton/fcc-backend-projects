@@ -14,8 +14,27 @@
 
         <h1>{{.Title}} </h1>
         <p> Submitted by <a href="/u/{{.Author}}">{{.Author}}</a></p>
+
+        <!-- if logged in user is the same as the author of pool, display
+        editing functionality -->
+        {{if eq .LoggedInUser.Username .Author}}
+        <div class="row">
+            <form method="POST">
+                <input type="hidden" name="_method" value="put">
+                <button class="btn-default" type="submit">Edit</button>
+            </form>
+            <form method="POST">
+                <input type="hidden" name="_method" value="delete">
+                <button class="btn-default" type="submit">Delete</button>
+            </form>
+        </div>
+        {{end}}
+
+        <!-- -->
         {{if .LoggedInUser.LoggedIn}}
         <form class="vertical-options" method="POST">
+            <input type="hidden" name="_method" value="post" />
+            <!-- -->
             {{range $i, $e := .Options}}
             <div class="row vote-option">
                 <input id="{{$i}}" type="radio" value="{{index $e 1}}" name="voteOption">

@@ -13,7 +13,7 @@ import (
 
 // Register is handling registration of Voting application
 func Register(w http.ResponseWriter, r *http.Request) {
-	switch m := r.Method; m {
+	switch r.Method {
 	case "GET":
 		registerGET(w, r, registerErrors{})
 	case "POST":

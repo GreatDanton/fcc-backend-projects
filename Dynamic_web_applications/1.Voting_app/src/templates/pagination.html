@@ -1,3 +1,9 @@
-{{define "pagination"}} {{if .Pagination.PaginationPrev}}
-<a href="/?maxID={{.Pagination.MaxIDPrev}}"><button class="btn-default ">Prev</button></a> {{end}} {{if .Pagination.PaginationNext}}
-<a href="/?maxID={{.Pagination.MaxIDNext}}"><button class="btn-default ">Next</button></a> {{end}} {{end}}
+{{define "pagination"}}
+<!-- -->
+{{if .Pagination.PaginationPrev}}
+<a href="/?maxID={{.Pagination.MaxIDPrev}}"><button class="btn-default ">Prev</button></a> {{end}}
+<!-- -->
+{{if .Pagination.PaginationNext}}
+<a href="/?maxID={{.Pagination.MaxIDNext}}"><button class="btn-default ">Next</button></a> {{end}}
+<!-- -->
+{{end}}

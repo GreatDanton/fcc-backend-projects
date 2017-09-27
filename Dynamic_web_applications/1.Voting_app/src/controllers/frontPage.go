@@ -16,10 +16,6 @@ type frontPage struct {
 	Pools        []pool
 	LoggedInUser User
 	Pagination   pagination
-	/* 	MaxIDNext      string
-	   	MaxIDPrev      string
-	   	PaginationNext bool
-	   	PaginationPrev bool */
 }
 
 type pagination struct {
@@ -39,7 +35,7 @@ type pool struct {
 
 // FrontPage takes care of displaying front page of Voting Application
 func FrontPage(w http.ResponseWriter, r *http.Request) {
-	switch m := r.Method; m {
+	switch r.Method {
 	case "GET":
 		displayFrontPage(w, r)
 	default:

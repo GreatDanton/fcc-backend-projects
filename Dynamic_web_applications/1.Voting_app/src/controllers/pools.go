@@ -25,11 +25,11 @@ type Pool struct {
 // ViewPool takes care for handling existing pools in /pool/pool_id
 // displaying existing pools and handling voting part of the pool
 func ViewPool(w http.ResponseWriter, r *http.Request) {
-	switch m := r.Method; m {
+	switch r.Method {
 	case "GET":
 		displayPool(w, r, Pool{})
 	case "POST":
-		postVote(w, r)
+		poolPostHandler(w, r)
 	default:
 		displayPool(w, r, Pool{})
 	}
@@ -76,6 +76,22 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+// poolPostHandler handles different methods of form submit
+func poolPostHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	method := r.Form["_method"][0]
+	switch method {
+	case "post":
+		postVote(w, r) // user posted vote
+	case "put":
+		editPool(w, r) // user wanted to edit pool
+	case "delete":
+		deletePool(w, r) // user wanted to delete pool
+	default:
+		postVote(w, r)
 	}
 }
 
@@ -427,4 +443,13 @@ func addPoolOption(poolID, option string, tx *sql.Tx) error {
 		return err
 	}
 	return nil
+}
+
+// editPool handles edit button press on poolDetails page
+func editPool(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Edit pool")
+}
+
+func deletePool(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Delete pool")
 }

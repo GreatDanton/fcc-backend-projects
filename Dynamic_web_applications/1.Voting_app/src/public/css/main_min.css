@@ -85,7 +85,7 @@ h1, h2, h3, h4, h5, h6 {
     .pool .pool-details a {
       color: #313131; }
 
-.pool:nth-last-child(1) {
+.pool-container .pool:nth-last-child(1) {
   border-bottom: none; }
 
 .vertical-options {
@@ -223,6 +223,25 @@ button {
   font-size: 14px; }
 
 button:hover {
+  border: 1px solid #8a8a8a; }
+
+.btn {
+  display: inline-block;
+  height: 30px;
+  line-height: 30px;
+  background-color: #fafafa;
+  border-radius: 3px;
+  border: 1px solid #c2c0c2;
+  padding: 0 10px;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  font-family: "Fira Sans", sans-serif;
+  font-size: 14px;
+  color: #313131; }
+
+.btn:hover {
   border: 1px solid #8a8a8a; }
 
 .btn-default {

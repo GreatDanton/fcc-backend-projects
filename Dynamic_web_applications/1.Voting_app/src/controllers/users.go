@@ -13,7 +13,7 @@ import (
 // UserDetails is displaying details of chosen user
 // details are: username and created pools
 func UserDetails(w http.ResponseWriter, r *http.Request) {
-	switch m := r.Method; m {
+	switch r.Method {
 	case "GET":
 		userDetailsGET(w, r)
 	default:
