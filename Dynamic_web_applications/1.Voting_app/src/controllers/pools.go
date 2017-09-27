@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
 	"net/http"
 	"sort"
 	"strings"
@@ -62,22 +61,16 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	// check if pool title exists and display relevant template with
 	// pool data filled in
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
-		t := template.Must(template.ParseFiles("templates/poolDetails.html",
-			"templates/navbar.html", "templates/styles.html"))
-		// add possible error messages,
 		// TODO: fix this ugly implementation
 		pool.ErrorPostVote = poolMsg.ErrorPostVote
-		err = t.ExecuteTemplate(w, "details", pool)
+		err = global.Templates.ExecuteTemplate(w, "details", pool)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 	} else { // if db does not return any rows -> pool does not exist, display 404
-		t := template.Must(template.ParseFiles("templates/404.html",
-			"templates/navbar.html",
-			"templates/styles.html"))
-		err := t.ExecuteTemplate(w, "404", pool)
+		err := global.Templates.ExecuteTemplate(w, "404", pool)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -274,10 +267,8 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 
 	errMsg := newPoolError{LoggedInUser: user}
 
-	t := template.Must(template.ParseFiles("templates/newPool.html",
-		"templates/navbar.html", "templates/styles.html"))
 	if r.Method == "GET" {
-		err := t.ExecuteTemplate(w, "newPool", errMsg)
+		err := global.Templates.ExecuteTemplate(w, "newPool", errMsg)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -295,7 +286,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		// check if poolTitle exists else return template with error message
 		if len(poolTitle) < 1 {
 			e := newPoolError{TitleError: "Please add title to your pool"}
-			err := t.ExecuteTemplate(w, "newPool", e)
+			err := global.Templates.ExecuteTemplate(w, "newPool", e)
 			if err != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -316,7 +307,7 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		// if there are not at least 2 options to vote for return error into template
 		if len(order) < 2 {
 			e := newPoolError{Title: poolTitle, VoteOptionsError: "Please add at least two options"}
-			err := t.ExecuteTemplate(w, "newPool", e)
+			err := global.Templates.ExecuteTemplate(w, "newPool", e)
 			if err != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal Server error", http.StatusInternalServerError)

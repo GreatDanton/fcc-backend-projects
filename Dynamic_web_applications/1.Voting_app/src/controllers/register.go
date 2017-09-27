@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -43,8 +42,7 @@ func registerGET(w http.ResponseWriter, r *http.Request, errMsg registerErrors) 
 	user := LoggedIn(r)
 	errMsg.LoggedInUser = user
 
-	t := template.Must(template.ParseFiles("templates/register.html", "templates/navbar.html", "templates/styles.html"))
-	err := t.ExecuteTemplate(w, "register", errMsg)
+	err := global.Templates.ExecuteTemplate(w, "register", errMsg)
 	if err != nil {
 		fmt.Printf("registerGet: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

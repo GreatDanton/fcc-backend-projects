@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -47,9 +46,7 @@ func displayLogIn(w http.ResponseWriter, r *http.Request, errMsg loginErrors) {
 	}
 
 	errMsg.LoggedInUser = user
-	t := template.Must(template.ParseFiles("templates/login.html",
-		"templates/navbar.html", "templates/styles.html"))
-	err := t.ExecuteTemplate(w, "login", errMsg)
+	err := global.Templates.ExecuteTemplate(w, "login", errMsg)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -130,8 +127,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// redirect to thank you for using our product page
-	t := template.Must(template.ParseFiles("templates/logout.html", "templates/navbar.html", "templates/styles.html"))
-	err = t.Execute(w, nil)
+	err = global.Templates.ExecuteTemplate(w, "logout", nil)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 	"time"
@@ -45,9 +44,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Pools = userPools
 
-	t := template.Must(template.ParseFiles("templates/users.html",
-		"templates/navbar.html", "templates/styles.html"))
-	err = t.ExecuteTemplate(w, "users", user)
+	err = global.Templates.ExecuteTemplate(w, "users", user)
 	if err != nil {
 		fmt.Printf("userDetailsGET: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

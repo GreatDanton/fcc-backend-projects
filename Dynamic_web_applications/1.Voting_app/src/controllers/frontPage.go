@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -49,18 +48,19 @@ func FrontPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // getMaxID from url that defines pool with maximum id parsed from db
-func getURLParams(r *http.Request) (int, error) {
+func getURLParams(r *http.Request) int {
 	q := r.URL.Query()
 	urlID := q.Get("maxID")
 	maxID := 0
 	if urlID != "" {
 		id, err := strconv.Atoi(urlID)
+		// user added something into url
 		if err != nil {
-			return maxID, err
+			return maxID
 		}
 		maxID = id
 	}
-	return maxID, nil
+	return maxID
 }
 
 // fpQuery picks the most suitable sql query based on maxID of pool and returns
@@ -90,12 +90,7 @@ func fpQuery(maxID int) (*sql.Rows, error) {
 
 // displaysFrontPage with latest pools
 func displayFrontPage(w http.ResponseWriter, r *http.Request) {
-	maxID, err := getURLParams(r)
-	// user added something into url, display front page
-	if err != nil {
-		fmt.Println(err)
-		maxID = 0
-	}
+	maxID := getURLParams(r)
 
 	// getting database response based on the maxID
 	rows, err := fpQuery(maxID)
@@ -134,15 +129,11 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := LoggedIn(r)
-	maxIDNext, dpn := displayNextButton(pools)
-	maxIDPrev, dpp := displayPrevButton(maxID, pools)
-	p := pagination{MaxIDNext: maxIDNext, PaginationNext: dpn, MaxIDPrev: maxIDPrev, PaginationPrev: dpp}
-
+	p := handlePoolPagination(maxID, pools)
 	fp := frontPage{Pools: pools, LoggedInUser: user, Pagination: p}
 
 	// displaying template
-	t := template.Must(template.ParseFiles("templates/frontPage.html", "templates/navbar.html", "templates/pagination.html"))
-	err = t.ExecuteTemplate(w, "frontPage", fp)
+	err = global.Templates.ExecuteTemplate(w, "frontPage", fp)
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -188,4 +179,14 @@ func displayPrevButton(maxID int, pools []pool) (string, bool) {
 	maxID += 20
 	id := strconv.Itoa(maxID)
 	return id, true
+}
+
+// returns pagination struct that handles moving back and forth between
+// the pool pages and displaying appropriate buttons
+func handlePoolPagination(maxID int, pools []pool) pagination {
+	maxIDNext, dpn := displayNextButton(pools)
+	maxIDPrev, dpp := displayPrevButton(maxID, pools)
+	p := pagination{MaxIDNext: maxIDNext, PaginationNext: dpn,
+		MaxIDPrev: maxIDPrev, PaginationPrev: dpp}
+	return p
 }
