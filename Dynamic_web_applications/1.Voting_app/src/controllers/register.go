@@ -65,9 +65,6 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 		Password: password,
 	}
 
-	// TODO check if email exist in db
-	//TODO: check email -> send confirmation email to registered address
-
 	// if passwords do not match, inform user and rerender template
 	if password != passConfirm {
 		errMsg.ErrorPassword = "Passwords do not match"
@@ -92,6 +89,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if email already exists in database, emails should be unique
+	//TODO: send confirmation email after registration
 	exist, err = userEmailCheck(email)
 	if err != nil {
 		fmt.Println("Register: userEmailCheck:", err)

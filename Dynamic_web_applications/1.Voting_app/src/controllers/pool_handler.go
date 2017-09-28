@@ -3,13 +3,15 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"strings"
+
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // Pool structure used to parse values from database
 type Pool struct {
+	ID            string
 	Author        string     // author username
 	Title         string     // title of the pool
 	Options       [][]string // contains [[option title, option_id]]
@@ -23,7 +25,12 @@ type Pool struct {
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		displayPool(w, r, Pool{})
+		path := utilities.GetURLSuffix(r)
+		if path == "edit" {
+			editPool(w, r)
+		} else {
+			displayPool(w, r, Pool{})
+		}
 	case "POST":
 		poolPostHandler(w, r)
 	default:
@@ -35,7 +42,7 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 // displayPool displays data for chosen pool /pool/:id and returns
 //404 page if pool does not exist
 func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
-	poolID := strings.Split(r.URL.EscapedPath(), "/")[2]
+	poolID := utilities.GetURLSuffix(r)
 
 	pool, err := getPoolDetails(poolID)
 	if err != nil {
@@ -82,7 +89,7 @@ func poolPostHandler(w http.ResponseWriter, r *http.Request) {
 	switch method {
 	case "post":
 		postVote(w, r) // user posted vote
-	case "put":
+	case "edit":
 		editPool(w, r) // user wanted to edit pool
 	case "delete":
 		deletePool(w, r) // user wanted to delete pool
@@ -96,7 +103,7 @@ func poolPostHandler(w http.ResponseWriter, r *http.Request) {
 // from database for chosen poolID
 func getPoolDetails(poolID string) (Pool, error) {
 	pool := Pool{}
-	rows, err := global.DB.Query(`SELECT title, users.username, pooloption.option,
+	rows, err := global.DB.Query(`SELECT pool.id, pool.title, users.username, pooloption.option,
 								  pooloption.id from pool
 								  LEFT JOIN poolOption
 								  on pool.id = poolOption.pool_id
@@ -110,6 +117,7 @@ func getPoolDetails(poolID string) (Pool, error) {
 
 	// defining variables for parsing rows from db
 	var (
+		id           string
 		title        string
 		author       string
 		poolOption   string
@@ -117,10 +125,11 @@ func getPoolDetails(poolID string) (Pool, error) {
 	)
 	// parsing rows from database
 	for rows.Next() {
-		err := rows.Scan(&title, &author, &poolOption, &poolOptionID)
+		err := rows.Scan(&id, &title, &author, &poolOption, &poolOptionID)
 		if err != nil {
 			return pool, err
 		}
+		pool.ID = id
 		pool.Title = title
 		pool.Author = author
 

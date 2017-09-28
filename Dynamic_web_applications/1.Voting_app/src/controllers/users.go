@@ -41,7 +41,11 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	user.Username = strings.TrimSpace(strings.Split(urlUser, "/")[2])
+	// splits on ? and trims right /, this ensures user is able to use / in username
+	urlUser = strings.TrimRight(strings.Split(urlUser, "?")[0], "/")
+	user.Username = strings.TrimSpace(urlUser[len("/u/"):])
+	//TODO: old way of parsing username//user.Username = strings.TrimSpace(strings.Split(urlUser, "/")[2])
+
 	user.LoggedInUser = LoggedIn(r)
 
 	exist, err := userExistCheck(user.Username)
@@ -61,7 +65,7 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	limit := 5
+	limit := 2
 	maxID := getMaxIDParam(r)
 	// get pools from user
 	userPools, err := getUserPools(user.Username, maxID, limit)
@@ -83,6 +87,11 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getUserPools fetches the database and returns user pools based on the
+// the function arguments
+// userName: user useranem
+// maxID: maximum pool id
+// limit: number of pools
 func getUserPools(username string, maxID int, limit int) ([]pool, error) {
 	pools := []pool{}
 	var (
@@ -97,28 +106,28 @@ func getUserPools(username string, maxID int, limit int) ([]pool, error) {
 	var err error
 	if maxID == 0 {
 		rows, err = global.DB.Query(`SELECT pool.id, pool.title, pool.created_by, pool.time, count(vote.pool_id)
-							   from pool
-							   LEFT JOIN users
-							   on users.id = pool.created_by
-							   LEFT JOIN vote
-							   on vote.pool_id = pool.id
-							   WHERE users.username = $1
-							   GROUP BY pool.id
-							   order by pool.id desc
-							   limit $2`, username, limit)
+							   		 from pool
+							   		 LEFT JOIN users
+							   		 on users.id = pool.created_by
+							   		 LEFT JOIN vote
+							   		 on vote.pool_id = pool.id
+							   		 WHERE users.username = $1
+							   		 GROUP BY pool.id
+							   		 order by pool.id desc
+							   		 limit $2`, username, limit)
 	} else {
 		// pool id can't be < 0
 		rows, err = global.DB.Query(`SELECT pool.id, pool.title, pool.created_by, pool.time, count(vote.pool_id)
-							from pool
-							LEFT JOIN users
-							on users.id = pool.created_by
-							LEFT JOIN vote
-							on vote.pool_id = pool.id
-							WHERE users.username = $1
-							AND pool.id <= $2
-							GROUP BY pool.id
-							order by pool.id desc
-							limit $3`, username, maxID, limit)
+									 from pool
+									 LEFT JOIN users
+									 on users.id = pool.created_by
+									 LEFT JOIN vote
+									 on vote.pool_id = pool.id
+									 WHERE users.username = $1
+									 AND pool.id <= $2
+									 GROUP BY pool.id
+									 order by pool.id desc
+									 limit $3`, username, maxID, limit)
 
 	}
 
