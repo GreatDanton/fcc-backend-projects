@@ -19,11 +19,14 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	var optionID string
 	poolID := strings.Split(r.URL.EscapedPath(), "/")[2]
-
-	for _, value := range r.Form { // f.Form contains only one option
-		optionID = value[0]
+	// get optionID, if the user did not pick anything
+	// optionID is empty string
+	var optionID string
+	for key, value := range r.Form {
+		if key == "voteOption" {
+			optionID = value[0]
+		}
 	}
 
 	poolMsg := Pool{}
@@ -45,6 +48,8 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("OptionID:", optionID)
+	fmt.Println("voteOPTIONS:", voteOptions)
 	ok := utilities.StringInSlice(optionID, voteOptions)
 	if !ok {
 		poolMsg.ErrorPostVote = "You'll have to be more clever."
