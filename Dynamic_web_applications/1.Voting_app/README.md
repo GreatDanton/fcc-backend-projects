@@ -24,17 +24,17 @@
 ## Pool
 
     (id serial primary key,
-    createdy_by integer references User(id),
+    createdy_by integer references User(id) on delete cascade,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     title text);
 
 ## PoolOption
 
     (id serial primary key,
-    pool_id integer references Pool(id),
+    pool_id integer references Pool(id) on delete cascade,
     option text);
 
-## User
+## Users
 
     (id serial primary key,
     username varchar(50) unique,
@@ -44,6 +44,6 @@
 ## Vote
 
     (id serial,
-    pool_id integer references pool(id),
-    option_id integer references poolOption(id),
-    voted_by integer references user(id));
+    pool_id integer references pool(id) on delete cascade,
+    option_id integer references poolOption(id) on delete cascade,
+    voted_by integer references user(id) on delete cascade);

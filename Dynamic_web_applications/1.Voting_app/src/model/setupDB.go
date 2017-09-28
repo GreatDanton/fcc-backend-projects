@@ -70,7 +70,7 @@ func createPoolTable() {
 	}
 
 	_, err = global.DB.Exec(`Create table pool(id serial primary key,
-												created_by integer references users(id),
+												created_by integer references users(id) on delete cascade,
 												time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 												title text)`)
 	if err != nil {
@@ -100,7 +100,7 @@ func createPoolOption() {
 	}
 
 	_, err = global.DB.Exec(`create table poolOption(id serial primary key,
-													pool_id integer references Pool(id),
+													pool_id integer references Pool(id) on delete cascade,
 													option text)`)
 	if err != nil {
 		fmt.Printf("Error while creating poolOption table: %v\n", err)
@@ -136,9 +136,9 @@ func createVoteTable() {
 	}
 
 	_, err = global.DB.Exec(`create table vote(id serial,
-												pool_id integer references pool(id),
-												option_id integer references poolOption(id),
-												voted_by integer references users(id))`)
+												pool_id integer references pool(id) on delete cascade,
+												option_id integer references poolOption(id) on delete cascade,
+												voted_by integer references users(id)) on delete cascade`)
 	if err != nil {
 		fmt.Printf("Error while creating vote table: %v\n", err)
 	}
