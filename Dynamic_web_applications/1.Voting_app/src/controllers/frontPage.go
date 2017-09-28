@@ -55,7 +55,7 @@ func getMaxIDParam(r *http.Request) int {
 // displaysFrontPage with latest pools
 func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 	maxID := getMaxIDParam(r)
-	limit := 10
+	limit := 20
 	// getting database response based on the maxID
 	pools, err := getFrontPageData(maxID, limit)
 	if err != nil {
@@ -65,7 +65,7 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := LoggedIn(r)
-	p := handlePoolPagination(maxID, pools, limit)
+	p := handlePoolPagination(r, maxID, pools, limit)
 	fp := frontPage{Pools: pools, LoggedInUser: user, Pagination: p}
 
 	// displaying template
@@ -131,7 +131,7 @@ func fpQuery(maxID int, limit int) (*sql.Rows, error) {
 								  (select count(*) as votes from vote where vote.pool_id = pool.id)
 								  FROM pool
 								  LEFT JOIN users on users.id = pool.created_by
-								  WHERE pool.id < $1
+								  WHERE pool.id <= $1
 								  ORDER BY pool.id desc
 								  limit $2`, maxID, limit)
 	return rows, err

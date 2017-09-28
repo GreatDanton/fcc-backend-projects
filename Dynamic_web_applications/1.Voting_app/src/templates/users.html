@@ -12,14 +12,17 @@
     <div class="main-container">
         <h1 class="card-title">{{.Username}}</h1>
         <h2> User pools </h2>
-        {{range .Pools}}
-        <div class="pool">
-            <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
-            <p class="pool-details">
-                Votes: {{.NumOfVotes}}, Submitted {{.Time}} ago
-            </p>
+        <div class="pool-container">
+            {{range .Pools}}
+            <div class="pool">
+                <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
+                <p class="pool-details">
+                    Votes: {{.NumOfVotes}}, Submitted {{.Time}} ago
+                </p>
+            </div>
+            {{end}}
         </div>
-        {{end}}
+        {{template "pagination" .}}
     </div>
 </body>
 
