@@ -19,7 +19,7 @@
         editing functionality -->
         {{if eq .LoggedInUser.Username .Author}}
         <div class="row">
-            <form method="GET" action="/pool/{{.ID}}/edit/">
+            <form method="GET" action="/pool/{{.ID}}/edit">
                 <button class="btn-default" type="submit">Edit</button>
             </form>
             <form method="POST">
@@ -42,7 +42,7 @@
             {{end}}
 
             <button class="btn-submit" type="submit"> Vote </button>
-            <label class="error-message">{{.ErrorPostVote}}</label>
+            <label class="error-message">{{.Errors.PostVoteError}}</label>
 
         </form>
         {{end}}

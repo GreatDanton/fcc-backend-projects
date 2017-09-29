@@ -33,7 +33,7 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	// if no vote option was chosen rerender template and display
 	// error message to user
 	if optionID == "" {
-		poolMsg.ErrorPostVote = "Please pick your vote option"
+		poolMsg.Errors.PostVoteError = "Please pick your vote option"
 		fmt.Println("postVote: no vote option was chosen")
 		displayPool(w, r, poolMsg)
 		return
@@ -48,11 +48,9 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("OptionID:", optionID)
-	fmt.Println("voteOPTIONS:", voteOptions)
 	ok := utilities.StringInSlice(optionID, voteOptions)
 	if !ok {
-		poolMsg.ErrorPostVote = "You'll have to be more clever."
+		poolMsg.Errors.PostVoteError = "You'll have to be more clever."
 		fmt.Println("PostVote:", "User is changing vote options")
 		displayPool(w, r, poolMsg)
 		return

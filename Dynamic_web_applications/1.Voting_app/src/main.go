@@ -25,9 +25,9 @@ func main() {
 	r.HandleFunc("/login/", controllers.Login)
 	r.HandleFunc("/logout/", controllers.Logout)
 	r.HandleFunc("/pool/{poolID}", controllers.ViewPool)
-	r.HandleFunc("/pool/{poolID}/edit/", controllers.EditPoolHandler)
+	r.HandleFunc("/pool/{poolID}/edit", controllers.EditPoolHandler)
 	r.HandleFunc("/new/", controllers.CreateNewPool)
-	r.HandleFunc("/u/{userID}/", controllers.UserDetails)
+	r.HandleFunc("/u/{userID}", controllers.UserDetails)
 	// handle public files
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))

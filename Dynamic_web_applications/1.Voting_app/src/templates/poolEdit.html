@@ -15,17 +15,30 @@
             <form method="POST">
                 <div class="new-post-title">
                     <label>Pool title:</label><br/>
-                    <textarea placeholder="Insert pool title" name="poolTitle">{{.Title}}</textarea>
+                    <!--
+                        This is added here so we can reuse the code for error checking
+                        titles and vote options for both newPool and editPool templates
+
+                        (on db fetch => template load, display .Title)
+                        (when displaying errors -> display ErrorTitle
+
+                        Without this error check, title get's deleted if any error
+                        while submitting edit pool
+                    -->
+                    <textarea placeholder="Insert pool title" name="poolTitle">{{if .Title}}{{.Title}}
+                       {{else}}{{.Errors.Title}}{{end}}</textarea>
+                    <label class="error-message">{{.Errors.TitleError}}</label>
                 </div>
 
                 <label class="margin-b-10">Vote Options:</label>
                 <div id="vote-options" class="new-pool-options">
                     {{range $i, $el := .Options}}
-                    <input type="text" placeholder="Option {{$i}}" name="option-{{$i}}" value="{{index $el 0}}" />
+                    <input type="text" placeholder="Option {{$i}}" name="option-{{index $el 1}}" value="{{index $el 0}}" />
                     <!-- -->
                     {{end}}
                 </div>
                 <button id="vote-add-option" class="btn-default" type="button">Add Option</button>
+                <label class="error-message">{{.Errors.VoteOptionsError}}</label>
 
                 <br/>
                 <br/>

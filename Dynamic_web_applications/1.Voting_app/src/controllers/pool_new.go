@@ -28,19 +28,20 @@ func CreateNewPool(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errMsg := newPoolError{LoggedInUser: user}
+	pool := Pool{LoggedInUser: user}
+	//errMsg := newPoolError{LoggedInUser: user}
 
 	if r.Method == "GET" {
-		err := global.Templates.ExecuteTemplate(w, "newPool", errMsg)
+		err := global.Templates.ExecuteTemplate(w, "newPool", pool)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 	} else if r.Method == "POST" {
-		poolTitle, voteOptions, err := parsePoolParams(w, r)
+		poolTitle, voteOptions, err := parsePoolParams(w, r, "newPool")
 		if err != nil {
 			// displaying error message is done in function
-			fmt.Println(err)
+			fmt.Println("CreateNewPool:", "parsePoolParams:", err)
 			return
 		}
 

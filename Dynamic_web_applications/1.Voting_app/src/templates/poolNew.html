@@ -15,8 +15,8 @@
             <form method="post">
                 <div class="new-post-title">
                     <label>Pool title:</label><br/>
-                    <textarea placeholder="Insert pool title" name="poolTitle">{{.Title}}</textarea>
-                    <label class="error-message">{{.TitleError}}</label>
+                    <textarea placeholder="Insert pool title" name="poolTitle">{{.Errors.Title}}</textarea>
+                    <label class="error-message">{{.Errors.TitleError}}</label>
                 </div>
 
                 <label class="margin-b-10">Vote Options:</label>
@@ -25,8 +25,8 @@
                     <input type="text" placeholder="Option 2" name="option-2" />
                     <input type="text" placeholder="Option 3" name="option-3" />
                 </div>
-                <label class="error-message">{{.VoteOptionsError}}</label>
                 <button id="vote-add-option" class="btn-default" type="button">Add Option</button>
+                <label class="error-message">{{.Errors.VoteOptionsError}}</label>
 
                 <br/>
                 <br/>

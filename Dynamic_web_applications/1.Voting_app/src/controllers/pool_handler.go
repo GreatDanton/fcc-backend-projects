@@ -11,13 +11,23 @@ import (
 
 // Pool structure used to parse values from database
 type Pool struct {
-	ID            string
-	Author        string     // author username
-	Title         string     // title of the pool
-	Options       [][]string // contains [[option title, option_id]]
-	Votes         [][]string // contains [[vote Option, vote count]]
-	ErrorPostVote string     // display error when user submits his vote
-	LoggedInUser  User       // User struct for rendering different templates based on user login status
+	ID      string
+	Author  string     // author username
+	Title   string     // title of the pool
+	Options [][]string // contains [[option title, option_id]]
+	Votes   [][]string // contains [[vote Option, vote count]]
+	//ErrorPostVote string     // display error when user submits his vote
+	LoggedInUser User       // User struct for rendering different templates based on user login status
+	Errors       poolErrors // displaying error messages in new/edit pool templates
+}
+
+type poolErrors struct {
+	Title            string // upon error fill input with .Title
+	TitleError       string // display error when title is not suitable
+	VoteOptions      []string
+	VoteOptionsError string // display error when user submitted < 2 vote options
+	PostVoteError    string // display error on user vote
+	EditPoolError    string // display error upon submitting edit pool form
 }
 
 // ViewPool takes care for handling existing pools in /pool/pool_id
@@ -26,14 +36,18 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		displayPool(w, r, Pool{})
-		/* 		path := utilities.GetURLSuffix(r)
-		   		if path == "edit" {
-		   			editPoolHandler(w, r)
-		   		} else {
-		   			displayPool(w, r, Pool{})
-		   		} */
+
 	case "POST":
-		poolPostHandler(w, r)
+		r.ParseForm()
+		method := r.Form["_method"][0]
+		switch method {
+		case "post":
+			postVote(w, r) // user posted vote
+		case "delete":
+			deletePool(w, r) // user wanted to delete pool
+		default:
+			postVote(w, r)
+		}
 	default:
 		displayPool(w, r, Pool{})
 	}
@@ -66,7 +80,7 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	// pool data filled in
 	if len(pool.Title) > 0 && len(pool.Options) > 0 {
 		// TODO: fix this ugly implementation
-		pool.ErrorPostVote = poolMsg.ErrorPostVote
+		pool.Errors.PostVoteError = poolMsg.Errors.PostVoteError
 		err = global.Templates.ExecuteTemplate(w, "details", pool)
 		if err != nil {
 			fmt.Println(err)
@@ -83,21 +97,6 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	}
 }
 
-// poolPostHandler handles different methods of form submit
-func poolPostHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	method := r.Form["_method"][0]
-	switch method {
-	case "post":
-		postVote(w, r) // user posted vote
-	case "delete":
-		deletePool(w, r) // user wanted to delete pool
-	default:
-		postVote(w, r)
-	}
-}
-
-//
 // getPoolDetails returns {poolID, Title, Author, [pooloption, pooloptionID]}
 // from database for chosen poolID
 func getPoolDetails(poolID string) (Pool, error) {
