@@ -25,12 +25,13 @@ type Pool struct {
 func ViewPool(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		path := utilities.GetURLSuffix(r)
-		if path == "edit" {
-			editPool(w, r)
-		} else {
-			displayPool(w, r, Pool{})
-		}
+		displayPool(w, r, Pool{})
+		/* 		path := utilities.GetURLSuffix(r)
+		   		if path == "edit" {
+		   			editPoolHandler(w, r)
+		   		} else {
+		   			displayPool(w, r, Pool{})
+		   		} */
 	case "POST":
 		poolPostHandler(w, r)
 	default:
@@ -89,8 +90,6 @@ func poolPostHandler(w http.ResponseWriter, r *http.Request) {
 	switch method {
 	case "post":
 		postVote(w, r) // user posted vote
-	case "edit":
-		editPool(w, r) // user wanted to edit pool
 	case "delete":
 		deletePool(w, r) // user wanted to delete pool
 	default:
