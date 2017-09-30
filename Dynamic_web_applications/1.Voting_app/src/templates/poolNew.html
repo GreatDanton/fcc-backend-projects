@@ -1,26 +1,26 @@
-{{define "newPool"}}
+{{define "newPoll"}}
 <!DOCTYPE HTML>
 
 <head>
-    <title> New pool </title>
+    <title> New poll </title>
     {{template "styles"}}
 </head>
 
 <body>
     {{template "navbar" .}}
     <div class="main-container">
-        <h1 class="card-title">Create new pool</h1>
+        <h1 class="card-title">Create new poll</h1>
 
         <div class="vertical-fields new-post">
             <form method="post">
                 <div class="new-post-title">
-                    <label>Pool title:</label><br/>
-                    <textarea placeholder="Insert pool title" name="poolTitle">{{.Errors.Title}}</textarea>
+                    <label>Poll title:</label><br/>
+                    <textarea placeholder="Insert poll title" name="pollTitle">{{.Errors.Title}}</textarea>
                     <label class="error-message">{{.Errors.TitleError}}</label>
                 </div>
 
                 <label class="margin-b-10">Vote Options:</label>
-                <div id="vote-options" class="new-pool-options">
+                <div id="vote-options" class="new-poll-options">
                     <input type="text" placeholder="Option 1" name="option-1" />
                     <input type="text" placeholder="Option 2" name="option-2" />
                     <input type="text" placeholder="Option 3" name="option-3" />
@@ -31,13 +31,13 @@
                 <br/>
                 <br/>
 
-                <button class="btn-submit" type="submit"> Submit Pool </button>
+                <button class="btn-submit" type="submit"> Submit Poll </button>
             </form>
         </div>
     </div>
 </body>
 
-<script src="/public/js/newPool.js"></script>
+<script src="/public/js/newPoll.js"></script>
 
 </html>
 {{end}}

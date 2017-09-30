@@ -15,10 +15,10 @@ addOption.addEventListener('click', function () {
 
 //clear error messages
 var errorLabels = document.getElementsByClassName('error-message');
-var submitPool = document.getElementsByClassName('btn-submit')[0];
+var submitPoll = document.getElementsByClassName('btn-submit')[0];
 
 // on button submit vote click, clear error labels
-submitPool.addEventListener('click', function () {
+submitPoll.addEventListener('click', function () {
     for (var i = 0; i < errorLabels.length; i++) {
         errorLabels[i].value = "";
     }

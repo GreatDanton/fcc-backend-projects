@@ -12,12 +12,12 @@
     {{template "navbar" .}}
 
     <div class="main-container">
-        <h1 class="card-title">Latest pools</h1>
-        <div class="pool-container">
-            {{range .Pools}}
-            <div class="pool">
-                <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
-                <p class="pool-details">
+        <h1 class="card-title">Latest polls</h1>
+        <div class="poll-container">
+            {{range .Polls}}
+            <div class="poll">
+                <a class="poll-title" href="/poll/{{.ID}}">{{.Title}}</a>
+                <p class="poll-details">
                     Votes: {{.NumOfVotes}}, Submitted by <a href="/u/{{.Author}}">{{.Author}}</a>, {{.Time}} ago
                 </p>
             </div>

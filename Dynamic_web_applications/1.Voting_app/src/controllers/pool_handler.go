@@ -9,33 +9,33 @@ import (
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
-// Pool structure used to parse values from database
-type Pool struct {
+// Poll structure used to parse values from database
+type Poll struct {
 	ID      string
 	Author  string     // author username
-	Title   string     // title of the pool
+	Title   string     // title of the poll
 	Options [][]string // contains [[option title, option_id]]
 	Votes   [][]string // contains [[vote Option, vote count]]
 	//ErrorPostVote string     // display error when user submits his vote
 	LoggedInUser User       // User struct for rendering different templates based on user login status
-	Errors       poolErrors // displaying error messages in new/edit pool templates
+	Errors       pollErrors // displaying error messages in new/edit poll templates
 }
 
-type poolErrors struct {
+type pollErrors struct {
 	Title            string // upon error fill input with .Title
 	TitleError       string // display error when title is not suitable
 	VoteOptions      []string
 	VoteOptionsError string // display error when user submitted < 2 vote options
 	PostVoteError    string // display error on user vote
-	EditPoolError    string // display error upon submitting edit pool form
+	EditPollError    string // display error upon submitting edit poll form
 }
 
-// ViewPool takes care for handling existing pools in /pool/pool_id
-// displaying existing pools and handling voting part of the pool
-func ViewPool(w http.ResponseWriter, r *http.Request) {
+// ViewPoll takes care for handling existing polls in /poll/poll_id
+// displaying existing polls and handling voting part of the poll
+func ViewPoll(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		displayPool(w, r, Pool{})
+		displayPoll(w, r, Poll{})
 
 	case "POST":
 		r.ParseForm()
@@ -44,51 +44,51 @@ func ViewPool(w http.ResponseWriter, r *http.Request) {
 		case "post":
 			postVote(w, r) // user posted vote
 		case "delete":
-			deletePool(w, r) // user wanted to delete pool
+			deletePoll(w, r) // user wanted to delete poll
 		default:
 			postVote(w, r)
 		}
 	default:
-		displayPool(w, r, Pool{})
+		displayPoll(w, r, Poll{})
 	}
 }
 
-// displayPool is handling GET request for VIEW POOL function
-// displayPool displays data for chosen pool /pool/:id and returns
-//404 page if pool does not exist
-func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
-	poolID := utilities.GetURLSuffix(r)
+// displayPoll is handling GET request for VIEW POOL function
+// displayPoll displays data for chosen poll /poll/:id and returns
+//404 page if poll does not exist
+func displayPoll(w http.ResponseWriter, r *http.Request, pollMsg Poll) {
+	pollID := utilities.GetURLSuffix(r)
 
-	pool, err := getPoolDetails(poolID)
+	poll, err := getPollDetails(pollID)
 	if err != nil {
-		fmt.Println("Error while getting pool details: ", err)
+		fmt.Println("Error while getting poll details: ", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	votes, err := getPoolVotes(poolID)
+	votes, err := getPollVotes(pollID)
 	if err != nil {
-		fmt.Printf("Error while getting pool votes count: %v\n", err)
+		fmt.Printf("Error while getting poll votes count: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	pool.Votes = votes
+	poll.Votes = votes
 	user := LoggedIn(r)
-	pool.LoggedInUser = user
+	poll.LoggedInUser = user
 
-	// check if pool title exists and display relevant template with
-	// pool data filled in
-	if len(pool.Title) > 0 && len(pool.Options) > 0 {
+	// check if poll title exists and display relevant template with
+	// poll data filled in
+	if len(poll.Title) > 0 && len(poll.Options) > 0 {
 		// TODO: fix this ugly implementation
-		pool.Errors.PostVoteError = poolMsg.Errors.PostVoteError
-		err = global.Templates.ExecuteTemplate(w, "details", pool)
+		poll.Errors.PostVoteError = pollMsg.Errors.PostVoteError
+		err = global.Templates.ExecuteTemplate(w, "details", poll)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-	} else { // if db does not return any rows -> pool does not exist, display 404
-		err := global.Templates.ExecuteTemplate(w, "404", pool)
+	} else { // if db does not return any rows -> poll does not exist, display 404
+		err := global.Templates.ExecuteTemplate(w, "404", poll)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -97,19 +97,19 @@ func displayPool(w http.ResponseWriter, r *http.Request, poolMsg Pool) {
 	}
 }
 
-// getPoolDetails returns {poolID, Title, Author, [pooloption, pooloptionID]}
-// from database for chosen poolID
-func getPoolDetails(poolID string) (Pool, error) {
-	pool := Pool{}
-	rows, err := global.DB.Query(`SELECT pool.id, pool.title, users.username, pooloption.option,
-								  pooloption.id from pool
-								  LEFT JOIN poolOption
-								  on pool.id = poolOption.pool_id
+// getPollDetails returns {pollID, Title, Author, [polloption, polloptionID]}
+// from database for chosen pollID
+func getPollDetails(pollID string) (Poll, error) {
+	poll := Poll{}
+	rows, err := global.DB.Query(`SELECT poll.id, poll.title, users.username, polloption.option,
+								  polloption.id from poll
+								  LEFT JOIN pollOption
+								  on poll.id = pollOption.poll_id
 								  LEFT JOIN users
-								  on users.id = pool.created_by
-								  where pool.id = $1;`, poolID)
+								  on users.id = poll.created_by
+								  where poll.id = $1;`, pollID)
 	if err != nil {
-		return pool, err
+		return poll, err
 	}
 	defer rows.Close()
 
@@ -118,44 +118,44 @@ func getPoolDetails(poolID string) (Pool, error) {
 		id           string
 		title        string
 		author       string
-		poolOption   string
-		poolOptionID string
+		pollOption   string
+		pollOptionID string
 	)
 	// parsing rows from database
 	for rows.Next() {
-		err := rows.Scan(&id, &title, &author, &poolOption, &poolOptionID)
+		err := rows.Scan(&id, &title, &author, &pollOption, &pollOptionID)
 		if err != nil {
-			return pool, err
+			return poll, err
 		}
-		pool.ID = id
-		pool.Title = title
-		pool.Author = author
+		poll.ID = id
+		poll.Title = title
+		poll.Author = author
 
-		option := []string{poolOption, poolOptionID}
-		pool.Options = append(pool.Options, option)
+		option := []string{pollOption, pollOptionID}
+		poll.Options = append(poll.Options, option)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return pool, err
+		return poll, err
 	}
 
-	return pool, nil
+	return poll, nil
 }
 
-// getPoolVotes returns vote count for pool with chosen poolID
+// getPollVotes returns vote count for poll with chosen pollID
 // returns [[Vote option 1, count 1], [Vote option 2, count 2]]
-func getPoolVotes(poolID string) ([][]string, error) {
+func getPollVotes(pollID string) ([][]string, error) {
 	votes := [][]string{} //Votes{}
 	// returns: optionID, optionName, number of votes => sorted by increasing id
 	// this ensures vote options results are returned the same way as they were posted
-	rows, err := global.DB.Query(`SELECT poolOption.id, poolOption.option,
-								  count(vote.option_id) from pooloption
+	rows, err := global.DB.Query(`SELECT pollOption.id, pollOption.option,
+								  count(vote.option_id) from polloption
 								  LEFT JOIN vote
-								  on pooloption.id = vote.option_id
-								  where pooloption.pool_id = $1
-								  group by poolOption.id
-								  order by poolOption.id asc`, poolID)
+								  on polloption.id = vote.option_id
+								  where polloption.poll_id = $1
+								  group by pollOption.id
+								  order by pollOption.id asc`, pollID)
 	if err != nil {
 		return votes, err
 	}

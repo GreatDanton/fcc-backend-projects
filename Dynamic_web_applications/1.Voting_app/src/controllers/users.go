@@ -13,7 +13,7 @@ import (
 )
 
 // UserDetails is displaying details of chosen user
-// details are: username and created pools
+// details are: username and created polls
 func UserDetails(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -26,13 +26,13 @@ func UserDetails(w http.ResponseWriter, r *http.Request) {
 // User is used to display user details in /u/username
 type userDetails struct {
 	Username     string
-	Pools        []pool
+	Polls        []poll
 	LoggedInUser User
 	Pagination   pagination
 }
 
 // userDetailsGet renders userDetail template and displays users data
-// username and created pools
+// username and created polls
 func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	user := userDetails{}
 	urlUser, err := url.PathUnescape(r.URL.EscapedPath())
@@ -65,18 +65,18 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	limit := 2
+	limit := 20
 	maxID := getMaxIDParam(r)
-	// get pools from user
-	userPools, err := getUserPools(user.Username, maxID, limit)
+	// get polls from user
+	userPolls, err := getUserPolls(user.Username, maxID, limit)
 	if err != nil {
-		fmt.Printf("getUserPool: %v\n", err)
+		fmt.Printf("getUserPoll: %v\n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	user.Pools = userPools
-	p := handlePoolPagination(r, maxID, userPools, limit)
+	user.Polls = userPolls
+	p := handlePollPagination(r, maxID, userPolls, limit)
 	user.Pagination = p
 
 	err = global.Templates.ExecuteTemplate(w, "users", user)
@@ -87,13 +87,13 @@ func userDetailsGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getUserPools fetches the database and returns user pools based on the
+// getUserPolls fetches the database and returns user polls based on the
 // the function arguments
 // userName: user useranem
-// maxID: maximum pool id
-// limit: number of pools
-func getUserPools(username string, maxID int, limit int) ([]pool, error) {
-	pools := []pool{}
+// maxID: maximum poll id
+// limit: number of polls
+func getUserPolls(username string, maxID int, limit int) ([]poll, error) {
+	polls := []poll{}
 	var (
 		id     string
 		title  string
@@ -105,49 +105,49 @@ func getUserPools(username string, maxID int, limit int) ([]pool, error) {
 	var rows *sql.Rows
 	var err error
 	if maxID == 0 {
-		rows, err = global.DB.Query(`SELECT pool.id, pool.title, pool.created_by, pool.time, count(vote.pool_id)
-							   		 from pool
+		rows, err = global.DB.Query(`SELECT poll.id, poll.title, poll.created_by, poll.time, count(vote.poll_id)
+							   		 from poll
 							   		 LEFT JOIN users
-							   		 on users.id = pool.created_by
+							   		 on users.id = poll.created_by
 							   		 LEFT JOIN vote
-							   		 on vote.pool_id = pool.id
+							   		 on vote.poll_id = poll.id
 							   		 WHERE users.username = $1
-							   		 GROUP BY pool.id
-							   		 order by pool.id desc
+							   		 GROUP BY poll.id
+							   		 order by poll.id desc
 							   		 limit $2`, username, limit)
 	} else {
-		// pool id can't be < 0
-		rows, err = global.DB.Query(`SELECT pool.id, pool.title, pool.created_by, pool.time, count(vote.pool_id)
-									 from pool
+		// poll id can't be < 0
+		rows, err = global.DB.Query(`SELECT poll.id, poll.title, poll.created_by, poll.time, count(vote.poll_id)
+									 from poll
 									 LEFT JOIN users
-									 on users.id = pool.created_by
+									 on users.id = poll.created_by
 									 LEFT JOIN vote
-									 on vote.pool_id = pool.id
+									 on vote.poll_id = poll.id
 									 WHERE users.username = $1
-									 AND pool.id <= $2
-									 GROUP BY pool.id
-									 order by pool.id desc
+									 AND poll.id <= $2
+									 GROUP BY poll.id
+									 order by poll.id desc
 									 limit $3`, username, maxID, limit)
 
 	}
 
 	if err != nil {
-		return pools, err
+		return polls, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		err := rows.Scan(&id, &title, &author, &time, &votes)
 		if err != nil {
-			return pools, err
+			return polls, err
 		}
 		timeAgo := utilities.TimeDiff(time) // create submitted ...ago string
-		pools = append(pools, pool{ID: id, Title: title, Author: author, Time: timeAgo, NumOfVotes: votes})
+		polls = append(polls, poll{ID: id, Title: title, Author: author, Time: timeAgo, NumOfVotes: votes})
 	}
 	err = rows.Err()
 	if err != nil {
-		return pools, err
+		return polls, err
 	}
 
-	return pools, nil
+	return polls, nil
 }

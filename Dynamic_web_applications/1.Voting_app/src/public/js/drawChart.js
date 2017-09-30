@@ -1,4 +1,4 @@
-// js part of the /pool/:num
+// js part of the /poll/:num
 
 // this scripts gets number of votes for each vote  option
 //from html hidden elements and display it on chart

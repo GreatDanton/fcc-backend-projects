@@ -68,24 +68,24 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 20px; }
 
-.pool {
+.poll {
   padding: 20px 0;
   border-bottom: 1px dashed #8a8a8a; }
-  .pool .pool-title {
+  .poll .poll-title {
     font-size: 18px;
     display: block;
     text-decoration: none;
     margin-bottom: 3px;
     color: #2D2AE4; }
-  .pool .pool-title:hover {
+  .poll .poll-title:hover {
     text-decoration: underline; }
-  .pool .pool-details {
+  .poll .poll-details {
     color: #313131;
     font-size: 12px; }
-    .pool .pool-details a {
+    .poll .poll-details a {
       color: #313131; }
 
-.pool-container .pool:nth-last-child(1) {
+.poll-container .poll:nth-last-child(1) {
   border-bottom: none; }
 
 .vertical-options {
@@ -174,7 +174,7 @@ input[type="email"]:focus.error, textarea:focus.error {
   -webkit-box-shadow: 2px 2px 10px rgba(207, 31, 31, 0.3);
   box-shadow: 2px 2px 10px rgba(207, 31, 31, 0.3); }
 
-.pool-results {
+.poll-results {
   margin-top: 80px; }
 
 /*  UTILITIES */

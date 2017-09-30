@@ -11,12 +11,12 @@
 
     <div class="main-container">
         <h1 class="card-title">{{.Username}}</h1>
-        <h2> User pools </h2>
-        <div class="pool-container">
-            {{range .Pools}}
-            <div class="pool">
-                <a class="pool-title" href="/pool/{{.ID}}">{{.Title}}</a>
-                <p class="pool-details">
+        <h2> User polls </h2>
+        <div class="poll-container">
+            {{range .Polls}}
+            <div class="poll">
+                <a class="poll-title" href="/poll/{{.ID}}">{{.Title}}</a>
+                <p class="poll-details">
                     Votes: {{.NumOfVotes}}, Submitted {{.Time}} ago
                 </p>
             </div>

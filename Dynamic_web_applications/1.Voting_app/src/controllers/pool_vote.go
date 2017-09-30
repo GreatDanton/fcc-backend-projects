@@ -10,7 +10,7 @@ import (
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 )
 
-// postVote function handles posting votes on each /pool/:id
+// postVote function handles posting votes on each /poll/:id
 func postVote(w http.ResponseWriter, r *http.Request) {
 	// check if user is logged in, if it's not return 403 forbidden
 	user := LoggedIn(r)
@@ -19,7 +19,7 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	poolID := strings.Split(r.URL.EscapedPath(), "/")[2]
+	pollID := strings.Split(r.URL.EscapedPath(), "/")[2]
 	// get optionID, if the user did not pick anything
 	// optionID is empty string
 	var optionID string
@@ -29,19 +29,19 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	poolMsg := Pool{}
+	pollMsg := Poll{}
 	// if no vote option was chosen rerender template and display
 	// error message to user
 	if optionID == "" {
-		poolMsg.Errors.PostVoteError = "Please pick your vote option"
+		pollMsg.Errors.PostVoteError = "Please pick your vote option"
 		fmt.Println("postVote: no vote option was chosen")
-		displayPool(w, r, poolMsg)
+		displayPoll(w, r, pollMsg)
 		return
 	}
 
 	// check if user is changing vote options via html, this prevents
-	// spamming votes for options that do not exist for this poolID
-	voteOptions, err := getVoteOptions(poolID)
+	// spamming votes for options that do not exist for this pollID
+	voteOptions, err := getVoteOptions(pollID)
 	if err != nil {
 		fmt.Println("postVote:", "getVoteOptions:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -50,9 +50,9 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 
 	ok := utilities.StringInSlice(optionID, voteOptions)
 	if !ok {
-		poolMsg.Errors.PostVoteError = "You'll have to be more clever."
+		pollMsg.Errors.PostVoteError = "You'll have to be more clever."
 		fmt.Println("PostVote:", "User is changing vote options")
-		displayPool(w, r, poolMsg)
+		displayPoll(w, r, pollMsg)
 		return
 	}
 
@@ -64,14 +64,14 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 	var dbOption string
 	err = global.DB.QueryRow(`SELECT id, option_id from vote
 							   WHERE voted_by = $1
-							   AND pool_id = $2`, userID, poolID).Scan(&dbVoteID, &dbOption)
+							   AND poll_id = $2`, userID, pollID).Scan(&dbVoteID, &dbOption)
 
 	if err != nil {
 		// if user did not vote, add users vote into database
 		if err == sql.ErrNoRows {
 			// add vote to database
-			_, e := global.DB.Exec(`INSERT into vote(pool_id, option_id, voted_by)
-									  values($1, $2, $3)`, poolID, optionID, userID)
+			_, e := global.DB.Exec(`INSERT into vote(poll_id, option_id, voted_by)
+									  values($1, $2, $3)`, pollID, optionID, userID)
 			if e != nil {
 				fmt.Println(err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -109,11 +109,11 @@ func postVote(w http.ResponseWriter, r *http.Request) {
 }
 
 // getVoteOptions returns array of vote options that exist in db
-// for chosen poolID.
-func getVoteOptions(poolID string) ([]string, error) {
+// for chosen pollID.
+func getVoteOptions(pollID string) ([]string, error) {
 	options := []string{}
-	rows, err := global.DB.Query(`SELECT id from pooloption
-								  WHERE pool_id = $1`, poolID)
+	rows, err := global.DB.Query(`SELECT id from polloption
+								  WHERE poll_id = $1`, pollID)
 	if err != nil {
 		return options, err
 	}

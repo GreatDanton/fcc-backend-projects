@@ -12,8 +12,8 @@ import (
 func SetUpDB() {
 	// creating new tables in exact order
 	createUserTable()
-	createPoolTable()
-	createPoolOption()
+	createPollTable()
+	createPollOption()
 	createVoteTable()
 }
 
@@ -61,67 +61,67 @@ func createUserTable() {
 	}
 }
 
-// creates pool table and fill it with data
-func createPoolTable() {
-	_, err := global.DB.Exec("drop table if exists pool cascade")
+// creates poll table and fill it with data
+func createPollTable() {
+	_, err := global.DB.Exec("drop table if exists poll cascade")
 	if err != nil {
-		fmt.Printf("Error dropping pool table: %v\n", err)
+		fmt.Printf("Error dropping poll table: %v\n", err)
 		return
 	}
 
-	_, err = global.DB.Exec(`Create table pool(id serial primary key,
+	_, err = global.DB.Exec(`Create table poll(id serial primary key,
 												created_by integer references users(id) on delete cascade,
 												time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 												title text)`)
 	if err != nil {
-		fmt.Printf("Error while creating pool table: %v\n", err)
+		fmt.Printf("Error while creating poll table: %v\n", err)
 		return
 	}
 
-	_, err = global.DB.Exec(`insert into pool(created_by, title) values(1, 'First title')`)
+	_, err = global.DB.Exec(`insert into poll(created_by, title) values(1, 'First title')`)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	_, err = global.DB.Exec(`insert into pool(created_by, title) values(2, 'Second title')`)
+	_, err = global.DB.Exec(`insert into poll(created_by, title) values(2, 'Second title')`)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 }
 
-// create poolOptions and fill it with data
-func createPoolOption() {
-	_, err := global.DB.Exec("drop table if exists poolOption cascade")
+// create pollOptions and fill it with data
+func createPollOption() {
+	_, err := global.DB.Exec("drop table if exists pollOption cascade")
 	if err != nil {
-		fmt.Printf("Error dropping poolOption table: %v", err)
+		fmt.Printf("Error dropping pollOption table: %v", err)
 		return
 	}
 
-	_, err = global.DB.Exec(`create table poolOption(id serial primary key,
-													pool_id integer references Pool(id) on delete cascade,
+	_, err = global.DB.Exec(`create table pollOption(id serial primary key,
+													poll_id integer references Poll(id) on delete cascade,
 													option text)`)
 	if err != nil {
-		fmt.Printf("Error while creating poolOption table: %v\n", err)
+		fmt.Printf("Error while creating pollOption table: %v\n", err)
 		return
 	}
 
-	_, err = global.DB.Exec(`insert into poolOption(pool_id, option) values (1, 'First option')`)
+	_, err = global.DB.Exec(`insert into pollOption(poll_id, option) values (1, 'First option')`)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_, err = global.DB.Exec(`insert into poolOption(pool_id, option) values (1, 'Second option')`)
+	_, err = global.DB.Exec(`insert into pollOption(poll_id, option) values (1, 'Second option')`)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_, err = global.DB.Exec(`insert into poolOption(pool_id, option) values (2, 'third option')`)
+	_, err = global.DB.Exec(`insert into pollOption(poll_id, option) values (2, 'third option')`)
 	if err != nil {
 		fmt.Println(err)
 	}
-	_, err = global.DB.Exec(`insert into poolOption(pool_id, option) values (2, 'fourth option')`)
+	_, err = global.DB.Exec(`insert into pollOption(poll_id, option) values (2, 'fourth option')`)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -136,29 +136,29 @@ func createVoteTable() {
 	}
 
 	_, err = global.DB.Exec(`create table vote(id serial,
-												pool_id integer references pool(id) on delete cascade,
-												option_id integer references poolOption(id) on delete cascade,
-												voted_by integer references users(id)) on delete cascade`)
+											   poll_id integer references Poll(id) on delete cascade,
+											   option_id integer references pollOption(id) on delete cascade,
+											   voted_by integer references users(id) on delete cascade);`)
+
 	if err != nil {
 		fmt.Printf("Error while creating vote table: %v\n", err)
 	}
 
-	_, err = global.DB.Exec(`insert into vote(pool_id, option_id, voted_by)
+	_, err = global.DB.Exec(`insert into vote(poll_id, option_id, voted_by)
 										values(1, 1, 1)`)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_, err = global.DB.Exec(`insert into vote(pool_id, option_id, voted_by)
+	_, err = global.DB.Exec(`insert into vote(poll_id, option_id, voted_by)
 										values(1, 1, 2)`)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	_, err = global.DB.Exec(`insert into vote(pool_id, option_id, voted_by)
+	_, err = global.DB.Exec(`insert into vote(poll_id, option_id, voted_by)
 										values(2, 3, 1)`)
 	if err != nil {
-		fmt.Println("HERE ")
 		fmt.Println(err)
 	}
 }

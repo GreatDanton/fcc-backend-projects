@@ -21,17 +21,17 @@
 
 # Database design
 
-## Pool
+## Poll
 
     (id serial primary key,
     createdy_by integer references User(id) on delete cascade,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     title text);
 
-## PoolOption
+## PollOption
 
     (id serial primary key,
-    pool_id integer references Pool(id) on delete cascade,
+    poll_id integer references Poll(id) on delete cascade,
     option text);
 
 ## Users
@@ -44,6 +44,6 @@
 ## Vote
 
     (id serial,
-    pool_id integer references pool(id) on delete cascade,
-    option_id integer references poolOption(id) on delete cascade,
+    poll_id integer references poll(id) on delete cascade,
+    option_id integer references pollOption(id) on delete cascade,
     voted_by integer references user(id) on delete cascade);

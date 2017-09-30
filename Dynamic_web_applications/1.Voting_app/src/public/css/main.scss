@@ -115,21 +115,21 @@ h1, h2, h3, h4, h5, h6 {
     padding: 20px;
 }
 
-.pool {
+.poll {
     padding: 20px 0;
     border-bottom: 1px dashed $color-text-light;
 
-    .pool-title {
+    .poll-title {
         font-size: 18px;
         display: block;
         text-decoration: none;
         margin-bottom: 3px;
         color: $color-internal-link;
     }
-    .pool-title:hover {
+    .poll-title:hover {
         text-decoration: underline;
     }
-    .pool-details {
+    .poll-details {
         color: $color-text;
         font-size: $font-size-small;
 
@@ -139,8 +139,8 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-.pool-container {
-    .pool:nth-last-child(1) {
+.poll-container {
+    .poll:nth-last-child(1) {
         border-bottom: none;
     }
 }
@@ -241,7 +241,7 @@ input[type="email"]:focus, textarea:focus {
     }
 }
 
-.pool-results {
+.poll-results {
     margin-top: 80px;
 }
 

@@ -15,11 +15,11 @@
         <h1>{{.Title}} </h1>
         <p> Submitted by <a href="/u/{{.Author}}">{{.Author}}</a></p>
 
-        <!-- if logged in user is the same as the author of pool, display
+        <!-- if logged in user is the same as the author of poll, display
         editing functionality -->
         {{if eq .LoggedInUser.Username .Author}}
         <div class="row">
-            <form method="GET" action="/pool/{{.ID}}/edit">
+            <form method="GET" action="/poll/{{.ID}}/edit">
                 <button class="btn-default" type="submit">Edit</button>
             </form>
             <form method="POST">
@@ -47,7 +47,7 @@
         </form>
         {{end}}
 
-        <div class="pool-results">
+        <div class="poll-results">
             <h2> Results </h2>
             <div class="chart-container margin-t-40">
                 <canvas id="resultsChart"></canvas>

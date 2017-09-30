@@ -1,37 +1,37 @@
-{{define "editPool"}}
+{{define "editPoll"}}
 <!DOCTYPE HTML>
 
 <head>
-    <title> New pool </title>
+    <title> New poll </title>
     {{template "styles"}}
 </head>
 
 <body>
     {{template "navbar" .}}
     <div class="main-container">
-        <h1 class="card-title">Edit pool</h1>
+        <h1 class="card-title">Edit poll</h1>
 
         <div class="vertical-fields new-post">
             <form method="POST">
                 <div class="new-post-title">
-                    <label>Pool title:</label><br/>
+                    <label>Poll title:</label><br/>
                     <!--
                         This is added here so we can reuse the code for error checking
-                        titles and vote options for both newPool and editPool templates
+                        titles and vote options for both newPoll and editPoll templates
 
                         (on db fetch => template load, display .Title)
                         (when displaying errors -> display ErrorTitle
 
                         Without this error check, title get's deleted if any error
-                        while submitting edit pool
+                        while submitting edit poll
                     -->
-                    <textarea placeholder="Insert pool title" name="poolTitle">{{if .Title}}{{.Title}}
+                    <textarea placeholder="Insert poll title" name="pollTitle">{{if .Title}}{{.Title}}
                        {{else}}{{.Errors.Title}}{{end}}</textarea>
                     <label class="error-message">{{.Errors.TitleError}}</label>
                 </div>
 
                 <label class="margin-b-10">Vote Options:</label>
-                <div id="vote-options" class="new-pool-options">
+                <div id="vote-options" class="new-poll-options">
                     {{range $i, $el := .Options}}
                     <input type="text" placeholder="Option {{$i}}" name="option-{{index $el 1}}" value="{{index $el 0}}" />
                     <!-- -->
@@ -43,13 +43,13 @@
                 <br/>
                 <br/>
 
-                <button class="btn-submit" type="submit"> Edit Pool </button>
+                <button class="btn-submit" type="submit"> Edit Poll </button>
             </form>
         </div>
     </div>
 </body>
 
-<script src="/public/js/newPool.js"></script>
+<script src="/public/js/newPoll.js"></script>
 
 </html>
 {{end}}
