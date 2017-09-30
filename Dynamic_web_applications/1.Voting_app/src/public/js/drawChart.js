@@ -100,12 +100,15 @@ var myChart = new Chart(ctx, {
                         }
                     },
                 }
+            }],
+            xAxes: [{
+                barPercentage: 0.5
             }]
         },
     }
 });
 
-// This plugin draws numbers above chart bars, taken from stackoverflow
+// This plugin draws numbers above chart bars
 Chart.plugins.register({
     afterDatasetsDraw: function (chart, easing) {
         // To only draw at the end of animation, check for easing === 1

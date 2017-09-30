@@ -32,7 +32,7 @@ func editPollView(w http.ResponseWriter, r *http.Request) {
 	//
 	loggedUser := LoggedIn(r)
 	if !loggedUser.LoggedIn {
-		err := global.Templates.ExecuteTemplate(w, "403", http.StatusForbidden)
+		err := global.Templates.ExecuteTemplate(w, "403", nil)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

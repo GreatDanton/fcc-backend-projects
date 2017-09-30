@@ -23,8 +23,7 @@ func CreateNewPoll(w http.ResponseWriter, r *http.Request) {
 	user := LoggedIn(r)
 	// check if user is logged in, otherwise redirect to /login page
 	if !user.LoggedIn {
-		fmt.Println("")
-		http.Redirect(w, r, "/login", http.StatusForbidden)
+		http.Redirect(w, r, "/login/", http.StatusSeeOther)
 		return
 	}
 

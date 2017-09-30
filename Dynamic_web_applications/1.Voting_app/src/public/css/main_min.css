@@ -190,6 +190,9 @@ input[type="email"]:focus.error, textarea:focus.error {
   flex-flow: row;
   width: 100%; }
 
+.centered-text {
+  text-align: center; }
+
 .margin-b-10 {
   margin-bottom: 10px; }
 
