@@ -18,13 +18,13 @@
         <!-- if logged in user is the same as the author of poll, display
         editing functionality -->
         {{if eq .LoggedInUser.Username .Author}}
-        <div class="row">
+        <div class="row pool-managing">
             <form method="GET" action="/poll/{{.ID}}/edit">
-                <button class="btn-default" type="submit">Edit</button>
+                <button class="btn-default btn-small" type="submit">Edit</button>
             </form>
             <form method="POST">
                 <input type="hidden" name="_method" value="delete">
-                <button class="btn-default" type="submit">Delete</button>
+                <button class="btn-default btn-small" type="submit">Delete</button>
             </form>
         </div>
         {{end}}

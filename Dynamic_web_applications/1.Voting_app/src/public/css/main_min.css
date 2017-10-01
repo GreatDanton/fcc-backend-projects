@@ -68,6 +68,9 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 20px; }
 
+.pool-managing button {
+  margin-right: 5px; }
+
 .poll {
   padding: 20px 0;
   border-bottom: 1px dashed #8a8a8a; }
@@ -275,6 +278,9 @@ button:hover {
   background-color: #303f9f;
   border: none;
   cursor: pointer; }
+
+.btn-small {
+  height: 25px; }
 
 .vote-option input[type="radio"] {
   display: none; }

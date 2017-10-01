@@ -1,4 +1,31 @@
-# Voting app
+# GoVote
+Voting application based on the rules of Voting Application from FreeCodeCamp backend section
+
+# Screenshots
+
+## Front page of the application
+![Front page of the GoVote application](images/front-page.png)
+
+## Displaying poll
+![Displaying poll options and results](images/poll-details.png)
+
+## Editing existing poll as the poll author
+![Editing existing poll as the author ](images/edit-poll.png)
+
+## Creating new poll
+![Creating new pool](images/new-poll.png)
+
+## Register
+![Register](images/register.png)
+
+## Login
+![Login](images/login.png)
+
+## Displaying User polls
+![Displaying User polls](images/user.png)
+
+
+# Implemented User stories:
 
 * User Story: As an authenticated user, I can keep my polls and come back later to access them.
 
