@@ -40,9 +40,13 @@ type registerErrors struct {
 // registerGET displays register template and possible error messages to the user
 func registerGET(w http.ResponseWriter, r *http.Request, errMsg registerErrors) {
 	user := LoggedIn(r)
-	errMsg.LoggedInUser = user
+	if user.LoggedIn {
+		fmt.Println("registerGET: user is already logged in")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
-	err := global.Templates.ExecuteTemplate(w, "register", errMsg)
+	err := global.Templates.ExecuteTemplate(w, "register", nil)
 	if err != nil {
 		fmt.Printf("registerGet: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

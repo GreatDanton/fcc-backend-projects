@@ -115,7 +115,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// check if user is logged in, if not don't handle his request
 	user := LoggedIn(r)
 	if !user.LoggedIn {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Redirect(w, r, "/login/", http.StatusSeeOther)
 		return
 	}
 	// user is logged in, destroy userSession and log him out

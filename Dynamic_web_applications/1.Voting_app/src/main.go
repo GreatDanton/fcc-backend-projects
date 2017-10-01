@@ -29,8 +29,8 @@ func main() {
 	r.HandleFunc("/new/", controllers.CreateNewPoll)
 	r.HandleFunc("/u/{userID}", controllers.UserDetails)
 	// handle public files
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
-	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
+	//http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
+	r.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	http.Handle("/", r)
 
 	// open connection with database using the fields from config
