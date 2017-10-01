@@ -67,30 +67,34 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 50px;
     background: $color-front-background;
     box-shadow: $box-shadow-navbar;
+}
 
-    .navbar-title {
-        font-size: 22px;
-        padding: 0 20px;
-        color: $color-text;
-        text-decoration: none;
-    }
+.navbar-title {
+    font-size: 22px;
+    padding: 0 20px;
+    color: $color-text;
+    text-decoration: none;
+}
 
-    .navbar-spacer {
-        flex-grow: 2;
-    }
+.navbar-spacer {
+    flex-grow: 2;
+}
 
-    .navbar-btn {
-        height: 100%;
-        padding: 0 20px;
-        text-decoration: none;
-        color: $color-text;
-        transition: $transition-default;
-        font-size: $font-size-p;
-    }
+.navbar-btn {
+    height: 100%;
+    padding: 0 20px;
+    text-decoration: none;
+    color: $color-text;
+    transition: $transition-default;
+    font-size: $font-size-p;
+}
 
-    .navbar-btn:hover {
-        color: $color-internal-link;
-    }
+.navbar-btn:hover {
+    color: $color-internal-link;
+}
+
+.navbar-mobile, .navbar-mobile-secondary {
+    display: none;
 }
 
 
@@ -258,5 +262,32 @@ input[type="email"]:focus, textarea:focus {
 @media screen and (max-width: 500px) {
     .main-container {
         padding: 40px 15px;
+    }
+
+    .poll-results {
+        margin-top: 40px;
+    }
+
+    .navbar {
+        display: none;
+    }
+
+    .navbar-mobile {
+        display: flex;
+        width: 100%;
+        height: 40px;
+        background: $color-front-background;
+        box-shadow: none;
+        line-height: 40px;
+        box-shadow: $box-shadow-navbar;
+    }
+    .navbar-mobile-secondary {
+        display: flex;
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        background: $color-front-background;
+        box-shadow: $box-shadow-navbar;
+        margin-top: 10px;
     }
 }

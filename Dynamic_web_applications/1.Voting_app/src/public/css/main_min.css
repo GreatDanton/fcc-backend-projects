@@ -27,27 +27,34 @@ h1, h2, h3, h4, h5, h6 {
   background: #fafafa;
   -webkit-box-shadow: 0px 2px 5px #D3D3D3;
   box-shadow: 0px 2px 5px #D3D3D3; }
-  .navbar .navbar-title {
-    font-size: 22px;
-    padding: 0 20px;
-    color: #313131;
-    text-decoration: none; }
-  .navbar .navbar-spacer {
-    -webkit-box-flex: 2;
-    -webkit-flex-grow: 2;
-    -ms-flex-positive: 2;
-    flex-grow: 2; }
-  .navbar .navbar-btn {
-    height: 100%;
-    padding: 0 20px;
-    text-decoration: none;
-    color: #313131;
-    -webkit-transition: all 0.2s ease-in-out;
-    -o-transition: all 0.2s ease-in-out;
-    transition: all 0.2s ease-in-out;
-    font-size: 14px; }
-  .navbar .navbar-btn:hover {
-    color: #2D2AE4; }
+
+.navbar-title {
+  font-size: 22px;
+  padding: 0 20px;
+  color: #313131;
+  text-decoration: none; }
+
+.navbar-spacer {
+  -webkit-box-flex: 2;
+  -webkit-flex-grow: 2;
+  -ms-flex-positive: 2;
+  flex-grow: 2; }
+
+.navbar-btn {
+  height: 100%;
+  padding: 0 20px;
+  text-decoration: none;
+  color: #313131;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  font-size: 14px; }
+
+.navbar-btn:hover {
+  color: #2D2AE4; }
+
+.navbar-mobile, .navbar-mobile-secondary {
+  display: none; }
 
 .main-container {
   max-width: 100%;
@@ -329,4 +336,33 @@ button:hover {
 
 @media screen and (max-width: 500px) {
   .main-container {
-    padding: 40px 15px; } }
+    padding: 40px 15px; }
+  .poll-results {
+    margin-top: 40px; }
+  .navbar {
+    display: none; }
+  .navbar-mobile {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    height: 40px;
+    background: #fafafa;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    line-height: 40px;
+    -webkit-box-shadow: 0px 2px 5px #D3D3D3;
+    box-shadow: 0px 2px 5px #D3D3D3; }
+  .navbar-mobile-secondary {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    background: #fafafa;
+    -webkit-box-shadow: 0px 2px 5px #D3D3D3;
+    box-shadow: 0px 2px 5px #D3D3D3;
+    margin-top: 10px; } }
