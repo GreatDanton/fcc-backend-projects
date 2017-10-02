@@ -18,7 +18,7 @@
         <!-- if logged in user is the same as the author of poll, display
         editing functionality -->
         {{if eq .LoggedInUser.Username .Author}}
-        <div class="row pool-managing">
+        <div class="row poll-managing">
             <form method="GET" action="/poll/{{.ID}}/edit">
                 <button class="btn-default btn-small" type="submit">Edit</button>
             </form>

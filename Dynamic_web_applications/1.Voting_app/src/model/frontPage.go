@@ -1,76 +1,16 @@
-package controllers
+package model
 
 import (
 	"database/sql"
-	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 )
 
-type frontPage struct {
-	Polls        []poll
-	LoggedInUser User
-	Pagination   pagination
-}
-
-// Poll is structure that contains all relevant poll data
-type poll struct {
-	ID         string
-	Time       string
-	Title      string
-	Author     string
-	NumOfVotes string
-}
-
-// FrontPage takes care of displaying front page of GoVote App
-// that is => latest submitted polls
-func FrontPage(w http.ResponseWriter, r *http.Request) {
-	maxID := getMaxIDParam(r)
-	limit := 20
-	// getting database response based on the maxID
-	polls, err := getFrontPageData(maxID, limit)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	user := LoggedIn(r)
-	p := handlePollPagination(r, maxID, polls, limit)
-	fp := frontPage{Polls: polls, LoggedInUser: user, Pagination: p}
-
-	// displaying template
-	err = global.Templates.ExecuteTemplate(w, "frontPage", fp)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-}
-
-// getMaxID from url that defines poll with maximum id parsed from db
-func getMaxIDParam(r *http.Request) int {
-	q := r.URL.Query()
-	urlID := q.Get("maxID")
-	maxID := 0
-	if urlID != "" {
-		id, err := strconv.Atoi(urlID)
-		// user added something into url
-		if err != nil {
-			return maxID
-		}
-		maxID = id
-	}
-	return maxID
-}
-
 // GetFrontPageData returns array of polls based on chosen maxID(max poll id) and limit of results
-func getFrontPageData(maxID int, limit int) ([]poll, error) {
-	polls := []poll{}
+func GetFrontPageData(maxID int, limit int) ([]Poll, error) {
+	polls := []Poll{}
 	rows, err := fpQuery(maxID, limit)
 	if err != nil {
 		return polls, err
@@ -92,7 +32,7 @@ func getFrontPageData(maxID int, limit int) ([]poll, error) {
 		}
 		// get time difference in human readable format
 		t := utilities.TimeDiff(time)
-		polls = append(polls, poll{ID: id, Title: title,
+		polls = append(polls, Poll{ID: id, Title: title,
 			Author: author, Time: t, NumOfVotes: numOfVotes})
 	}
 	err = rows.Err()

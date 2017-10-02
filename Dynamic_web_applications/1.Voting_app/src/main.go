@@ -1,34 +1,35 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 
-	"database/sql" // sql drivers
-
-	"github.com/go-zoo/bone"
 	_ "github.com/lib/pq" // importing postgres db drivers
 
-	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/controllers"
+	"github.com/go-zoo/bone"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/controller"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 )
 
 // main function for handling web application
 func main() {
+	// reading configuration
 	config := global.ReadConfig()
 	fmt.Printf("Starting server: http://127.0.0.1:%v\n", config.Port)
 	r := bone.New()
 
-	r.NotFoundFunc(controllers.Handle404)
-	r.Get("/", http.HandlerFunc(controllers.FrontPage))
-	r.HandleFunc("/register", controllers.Register)
-	r.HandleFunc("/login", controllers.Login)
-	r.HandleFunc("/logout", controllers.Logout)
-	r.HandleFunc("/poll/:poolID", controllers.ViewPoll)
-	r.HandleFunc("/poll/:poolID/edit", controllers.EditPollHandler)
-	r.HandleFunc("/new", controllers.CreateNewPoll)
-	r.HandleFunc("/u/:userID", controllers.UserDetails)
+	/* 	r.NotFoundFunc(controllers.Handle404) */
+	r.NotFoundFunc(controller.Handle404)
+	r.Get("/", http.HandlerFunc(controller.FrontPage))
+	r.HandleFunc("/register", controller.Register)
+	r.HandleFunc("/new", controller.CreateNewPoll)
+	r.HandleFunc("/u/:userID", controller.UserDetails)
+	r.HandleFunc("/login", controller.Login)
+	r.HandleFunc("/logout", controller.Logout)
+	r.HandleFunc("/poll/:pollID", controller.ViewPoll)
+	r.HandleFunc("/poll/:pollID/edit", controller.EditPollHandler)
 	// handle public files
 	r.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
