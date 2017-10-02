@@ -15,11 +15,11 @@ import (
 func Register(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		registerGET(w, r, registerErrors{})
+		registerDisplay(w, r, registerErrors{})
 	case "POST":
 		registerNewUser(w, r)
 	default:
-		registerGET(w, r, registerErrors{})
+		registerDisplay(w, r, registerErrors{})
 	}
 }
 
@@ -37,18 +37,18 @@ type registerErrors struct {
 	LoggedInUser  User
 }
 
-// registerGET displays register template and possible error messages to the user
-func registerGET(w http.ResponseWriter, r *http.Request, errMsg registerErrors) {
+// registerDisplay displays register template and possible error messages to the user
+func registerDisplay(w http.ResponseWriter, r *http.Request, errMsg registerErrors) {
 	user := LoggedIn(r)
 	if user.LoggedIn {
-		fmt.Println("registerGET: user is already logged in")
+		fmt.Println("registerDisplay: user is already logged in")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	err := global.Templates.ExecuteTemplate(w, "register", nil)
+	err := global.Templates.ExecuteTemplate(w, "register", errMsg)
 	if err != nil {
-		fmt.Printf("registerGet: %v \n", err)
+		fmt.Printf("registerDisplay: %v \n", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -72,7 +72,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	// if passwords do not match, inform user and rerender template
 	if password != passConfirm {
 		errMsg.ErrorPassword = "Passwords do not match"
-		registerGET(w, r, errMsg)
+		registerDisplay(w, r, errMsg)
 		return
 	}
 
@@ -88,7 +88,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	if exist { // exist == true
 		errMsg.ErrorUsername = "Username already taken"
 		fmt.Println("Username already exists")
-		registerGET(w, r, errMsg)
+		registerDisplay(w, r, errMsg)
 		return
 	}
 
@@ -105,7 +105,7 @@ func registerNewUser(w http.ResponseWriter, r *http.Request) {
 	if exist {
 		fmt.Println("Register: userEmailCheck: Email is already registered")
 		errMsg.ErrorEmail = "Email is already registered"
-		registerGET(w, r, errMsg)
+		registerDisplay(w, r, errMsg)
 		return
 	}
 

@@ -26,34 +26,9 @@ type poll struct {
 	NumOfVotes string
 }
 
-// FrontPage takes care of displaying front page of Voting Application
+// FrontPage takes care of displaying front page of GoVote App
+// that is => latest submitted polls
 func FrontPage(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		displayFrontPage(w, r)
-	default:
-		displayFrontPage(w, r)
-	}
-}
-
-// getMaxID from url that defines poll with maximum id parsed from db
-func getMaxIDParam(r *http.Request) int {
-	q := r.URL.Query()
-	urlID := q.Get("maxID")
-	maxID := 0
-	if urlID != "" {
-		id, err := strconv.Atoi(urlID)
-		// user added something into url
-		if err != nil {
-			return maxID
-		}
-		maxID = id
-	}
-	return maxID
-}
-
-// displaysFrontPage with latest polls
-func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 	maxID := getMaxIDParam(r)
 	limit := 20
 	// getting database response based on the maxID
@@ -75,6 +50,22 @@ func displayFrontPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+}
+
+// getMaxID from url that defines poll with maximum id parsed from db
+func getMaxIDParam(r *http.Request) int {
+	q := r.URL.Query()
+	urlID := q.Get("maxID")
+	maxID := 0
+	if urlID != "" {
+		id, err := strconv.Atoi(urlID)
+		// user added something into url
+		if err != nil {
+			return maxID
+		}
+		maxID = id
+	}
+	return maxID
 }
 
 // GetFrontPageData returns array of polls based on chosen maxID(max poll id) and limit of results

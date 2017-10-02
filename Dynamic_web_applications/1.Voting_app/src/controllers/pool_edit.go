@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/go-zoo/bone"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/utilities"
 )
@@ -71,7 +71,7 @@ func editPollView(w http.ResponseWriter, r *http.Request) {
 //editPollSubmit handles poll title and poll options updates
 func editPollSubmit(w http.ResponseWriter, r *http.Request) {
 	// get poll id
-	pollID := mux.Vars(r)["pollID"]
+	pollID := bone.GetValue(r, "poolID")
 	user := LoggedIn(r)
 
 	// get title, options from template
