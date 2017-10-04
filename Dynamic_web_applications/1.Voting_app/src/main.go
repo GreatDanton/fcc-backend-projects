@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-zoo/bone"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/controller"
 	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/global"
+	"github.com/greatdanton/fcc-backend-projects/Dynamic_web_applications/1.Voting_app/src/setup"
 )
 
 // main function for handling web application
@@ -42,8 +44,16 @@ func main() {
 	defer db.Close()
 	global.DB = db // assign to global db variable
 
-	// setUp our database -> remove old tables and setup new ones
-	//model.SetUpDB()
+	// parsing environement flag
+	wordPtr := flag.String("env", "", "use test for setting testing environment or new when setting up application")
+	flag.Parse()
+	if *wordPtr == "test" {
+		// setUp our database (for developers) -> remove old tables and setup new ones
+		setup.CreateDevDB()
+	} else if *wordPtr == "setup" {
+		// setUp our database for the first time -> without removing old tables
+		setup.CreateNewDB()
+	}
 
 	if err := http.ListenAndServe(":"+config.Port, r); err != nil {
 		log.Fatal("ListenAndServe:", err)

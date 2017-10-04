@@ -52,7 +52,7 @@ Voting application based on the rules of Voting Application from FreeCodeCamp ba
 
     (id serial primary key,
     createdy_by integer references User(id) on delete cascade,
-    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     title text);
 
 ## PollOption
@@ -66,7 +66,7 @@ Voting application based on the rules of Voting Application from FreeCodeCamp ba
     (id serial primary key,
     username varchar(50) unique,
     email text unique,
-    password_hash varchar(72) NOT NULL);
+    password_hash varchar(60) NOT NULL);
 
 ## Vote
 

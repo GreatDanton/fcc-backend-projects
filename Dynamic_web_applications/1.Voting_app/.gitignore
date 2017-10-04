@@ -1,3 +1,5 @@
 config.json
 prepros-6.config
 images/edited
+builds
+buildForArm.sh
